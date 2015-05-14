@@ -6,17 +6,17 @@ setup:
 	go get golang.org/x/tools/cmd/cover
 
 build:
-	go build -o ./build/micro ./src
+	go build -o ./build/micro
 
 run:
 	go run ./src/main.go -config=$(config)
 
 test:
 	mkdir -p build
-	go test -coverprofile=build/coverage.out ./src/
+	go test -coverprofile=build/coverage.out
 
 coverage: test
-	go
+	go tool cover -html=build/coverage.out
 
 clean:
 	-rm -r ./build
