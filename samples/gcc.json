@@ -1,0 +1,8 @@
+{
+  "provider": "gcc",
+  "properties": {
+    "username": "foo",
+    "password": "bar",
+    "region": "eu"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "provider": "aws",
+  "properties": {
+    "secret_key": "bf4YY1yeXeQkByTYUYFtZBLUjL4YUXFTHmFBvaDa",
+    "access_key": "AAIAIOEIEREAZQ4IIE69",
+    "region": "eu-west-1"
+  }
+}
