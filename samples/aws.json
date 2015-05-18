@@ -1,4 +1,5 @@
 {
+  "id": "my-aws-1",
   "provider": "aws",
   "properties": {
     "secret_key": "af4YY1yeXeQkByTYUYFtBBLUjL4YXXFTHaFBvaDb",

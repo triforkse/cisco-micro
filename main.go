@@ -18,7 +18,7 @@ type Config struct {
 }
 
 type Provider interface {
-	cmdArgs() []string
+	cmdArgs() map[string]string
 }
 
 func main() {
@@ -68,18 +68,27 @@ func RunTerraform(config Config) {
 		log.Fatal("Invalid configuration. " + err.Error())
 	}
 
-	// TODO: call provider.prepare()
+	//provider.prepare()
+	//defer {	provider.cleanup() }
 
-	args := provider.cmdArgs()
+	args := []string{"apply"}
 
 	// Determine if we have an old tfstate file we need to load.
+	args = append(args, "-state=" + filepath.Join(".micro", config.Id + ".tfstate"))
 
-	stateFileArg := "-state=" + filepath.Join(".micro", config.Id + ".tfstate")
-	args = append([]string{"apply", stateFileArg}, args...)
+	// Pass in the arguments
+	for k, v := range provider.cmdArgs() {
+		args = append(args, "-var", k + "=" + v)
+	}
+	args = append(args, "-var", "deployment_id=" + config.Id)
+
+	// Tell it what template to use based on the provider.
+	args = append(args, filepath.Join("templates", config.Provider))
 
 	fmt.Printf("terraform %+v", args)
-	cmd := exec.Command("terraform", args...)
 
+	// Run Terraform
+	cmd := exec.Command("terraform", args...)
 
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -100,12 +109,11 @@ type AWSProvider struct {
 	Region    string
 }
 
-func (p *AWSProvider) cmdArgs() []string {
-	return []string{
-		"-var", "secret_key=" + p.SecretKey,
-		"-var", "access_key=" + p.AccessKey,
-		"-var", "region=" + p.Region,
-		"templates/aws",
+func (p *AWSProvider) cmdArgs() map[string]string {
+	return map[string]string{
+		"secret_key": p.SecretKey,
+		"access_key": p.AccessKey,
+		"region": p.Region,
 	}
 }
 
@@ -113,13 +121,14 @@ func (p *AWSProvider) cmdArgs() []string {
 type GCCProvider struct {
 	Project       string
 	Region				string
+	AccountFile   string
 }
 
-func (p *GCCProvider) cmdArgs() []string {
-	return []string{
-		"-var", "project=" + p.Project,
-		"-var", "region=" + p.Region,
-		"-var", "account_file=account.json",
-		"templates/gcc",
+func (p *GCCProvider) cmdArgs() map[string]string {
+	fmt.Printf("CGG %+v", p)
+	return map[string]string{
+		"project":	p.Project,
+		"region": 	p.Region,
+		"account_file": p.AccountFile,
 	}
 }

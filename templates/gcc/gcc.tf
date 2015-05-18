@@ -1,5 +1,6 @@
 variable "region" { }
 variable "project" { }
+variable "deployment_id" { }
 
 provider "google" {
     account_file = "account.json"
@@ -8,14 +9,14 @@ provider "google" {
 }
 
 resource "google_compute_instance" "default" {
-    name = "micro-master"
+    name = "${var.deployment_id}-micro-master"
     machine_type = "n1-standard-1"
     zone = "europe-west1-d"
 
     disk {
         image = "debian-7-wheezy-v20140814"
     }
-    
+
     network_interface {
         network = "default"
         access_config {
