@@ -2,140 +2,111 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
-	"flag"
 	"fmt"
 	"io/ioutil"
-	"log"
+	"os"
 	"os/exec"
+	"strings"
+	"github.com/jessevdk/go-flags"
 	"path/filepath"
 )
 
-type Config struct {
-	Provider   string
-	Properties json.RawMessage // Delay parsing until we know the provider
+
+var Options struct {
+	Provider string `short:"p" long:"provider" required:"yes" description:"Which provider to use e.g. aws or gcc"`
+	ConfigFile flags.Filename `short:"c" long:"config" required:"yes" description:"Path to the config file"`
 }
 
-type Provider interface {
-	cmdArgs() []string
-}
+
 
 func main() {
-	filePath := flag.String("config", "micro.json", "the configuration file")
+	validateCommandLineOptions()
 
-	flag.Parse()
+	createTerraformFile()
 
-	config := ReadConfig(*filePath)
-	RunTerraform(config)
+	runTerraform()
 }
 
-func ReadConfig(filePath string) Config {
 
-	// Determine what provider we are using,
-	// and parse the configuration accordingly.
 
-	bytes, _ := ioutil.ReadFile(filePath)
-
-	var config Config
-	parseErr := json.Unmarshal(bytes, &config)
-
-	if parseErr != nil {
-		absPath, _ := filepath.Abs(filePath)
-		log.Fatal("Failed to read configuration file: " + absPath)
+func check(e error) {
+	if e != nil {
+		panic(e)
 	}
-
-	return config
 }
 
-func RunTerraform(config Config) {
+func validateCommandLineOptions(){
+	// parse cli flags -> break if mandatory flags are missing
+	_, err := flags.Parse(&Options)
+	check(err)
 
-	type Parser func(json.RawMessage) ([]string, error)
-
-	parsers := map[string]Provider{
-		"aws": new(AWSProvider),
-		"gcc": new(GCCProvider),
+	// config file is mandatory is should exist
+	if _, err := os.Stat(string(Options.ConfigFile)); os.IsNotExist(err) {
+		fmt.Println("Config file: no such file: ", Options.ConfigFile)
+		return
 	}
 
-	provider, known := parsers[config.Provider]
-
-	if !known {
-		log.Fatal("Unknown provider: '" + config.Provider + "'")
+	if !(Options.Provider == "aws" || Options.Provider == "gcc") {
+		fmt.Println("Unknown provider: ", Options.Provider)
+		return
 	}
+}
 
-	err := json.Unmarshal(config.Properties, provider)
-	if err != nil {
-		log.Fatal("Invalid configuration. " + err.Error())
-	}
-
-	// TODO: call provider.prepare()
-
-	args := provider.cmdArgs()
-	fmt.Printf("%+v", args);
-	cmd := exec.Command("terraform", args...)
-
-
+func runTerraform(){
+	// first we need to download the terraform module
+	cmd := exec.Command("terraform", "get", "-update=true")
 	var out bytes.Buffer
-	cmd.Stdout = &out
-
 	var outErr bytes.Buffer
+	cmd.Stdout = &out
 	cmd.Stderr = &outErr
-
-	if cmd.Run() != nil {
-		log.Fatal(outErr.String())
-	}
-
+	err := cmd.Run()
 	fmt.Printf("%s", out.String())
-}
-
-/*
-module "gcc" {
-                   source = "git::https://gitlab.trifork.se/flg/ms-infra-terraform-ccp.git//gcc?ref=master"
-                   account_file="{{account_file}}"
-                   gce_ssh_user="554985525398-p9se88l5e3fupvj1v8t6tujq5qsumh1q.apps.googleusercontent.com"
-                   gce_ssh_private_key_file="pkey"
-                   region ="europe-west1"
-                   zone="europe-west1-d"
-                   project="cs-cisco"
-                   image="ubuntu-os-cloud/ubuntu-1404-trusty-v20150128"
-                   master_machine_type="n1-standard-2"
-                   slave_machine_type= "n1-standard-4"
-                   network= "10.20.30.0/24"
-                   localaddress="92.111.228.8/32"
-                   domain="gcc.trifork.se"
-                   name="mymesoscluster"
-                   masters= "1"
-              }
-*/
+	fmt.Printf("%s", outErr.String())
+	check(err)
 
 
-type AWSProvider struct {
-	SecretKey string `json:"secret_key"`
-	AccessKey string `json:"access_key"`
-	Region    string
-}
+	// then we apply terraform to execute our module with the given parameters
+	var out2 bytes.Buffer
+	var outErr2 bytes.Buffer
+	cmd = exec.Command("terraform", "apply",("-state="+string(Options.ConfigFile)+".tfstate") )
+	cmd.Stdout = &out2
+	cmd.Stderr = &outErr2
+	err =cmd.Run()
+	fmt.Printf("%s", out2.String())
+	fmt.Printf("%s", outErr2.String())
+	check(err)
 
-func (p *AWSProvider) cmdArgs() []string {
-	return []string{
-		"apply",
-		"-var", "secret_key=" + p.SecretKey,
-		"-var", "access_key=" + p.AccessKey,
-		"-var", "region=" + p.Region,
-		"templates/aws",
+
+	// print out the terraform results
+	if _, err := os.Stat(filepath.Join(".", "terraform.tfstate")); os.IsNotExist(err) {
+		return
 	}
+	dat, err := ioutil.ReadFile(filepath.Join(".", "terraform.tfstate"))
+	check(err)
+	fmt.Print(string(dat))
 }
 
+func createTerraformFile(){
+	config, err := ioutil.ReadFile(string(Options.ConfigFile))
+	check(err)
 
-type GCCProvider struct {
-	Project       string
-	Region				string
+
+	// create terraform file which will calls our terraform module
+	file, err := os.Create(filepath.Join(".", "gcc_terraform.tf"))
+	check(err)
+	defer func() {
+		err = file.Close()
+		check(err)
+	}()
+
+
+	file.WriteString("module \"ms-infra-terraform\" { \n")
+	file.WriteString(string(config))
+	source := strings.Replace("\nsource = \"git::https://gitlab.trifork.se/flg/ms-infra-terraform-ccp.git//{{provider}}?ref=master\"","{{provider}}", Options.Provider,1)
+	file.WriteString(source)
+	file.WriteString("\n}\n")
+
+	// TODO flush needed?
+	fmt.Println("Created terraform file: ", file.Name())
 }
 
-func (p *GCCProvider) cmdArgs() []string {
-	return []string{
-		"apply",
-		"-var", "project=" + p.Project,
-		"-var", "region=" + p.Region,
-		"-var", "account_file=account.json",
-		"templates/gcc",
-	}
-}
