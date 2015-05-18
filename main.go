@@ -12,6 +12,7 @@ import (
 )
 
 type Config struct {
+	Id         string
 	Provider   string
 	Properties json.RawMessage // Delay parsing until we know the provider
 }
@@ -70,7 +71,13 @@ func RunTerraform(config Config) {
 	// TODO: call provider.prepare()
 
 	args := provider.cmdArgs()
-	fmt.Printf("%+v", args);
+
+	// Determine if we have an old tfstate file we need to load.
+
+	stateFileArg := "-state=" + filepath.Join(".micro", config.Id + ".tfstate")
+	args = append([]string{"apply", stateFileArg}, args...)
+
+	fmt.Printf("terraform %+v", args)
 	cmd := exec.Command("terraform", args...)
 
 
@@ -87,27 +94,6 @@ func RunTerraform(config Config) {
 	fmt.Printf("%s", out.String())
 }
 
-/*
-module "gcc" {
-                   source = "git::https://gitlab.trifork.se/flg/ms-infra-terraform-ccp.git//gcc?ref=master"
-                   account_file="{{account_file}}"
-                   gce_ssh_user="554985525398-p9se88l5e3fupvj1v8t6tujq5qsumh1q.apps.googleusercontent.com"
-                   gce_ssh_private_key_file="pkey"
-                   region ="europe-west1"
-                   zone="europe-west1-d"
-                   project="cs-cisco"
-                   image="ubuntu-os-cloud/ubuntu-1404-trusty-v20150128"
-                   master_machine_type="n1-standard-2"
-                   slave_machine_type= "n1-standard-4"
-                   network= "10.20.30.0/24"
-                   localaddress="92.111.228.8/32"
-                   domain="gcc.trifork.se"
-                   name="mymesoscluster"
-                   masters= "1"
-              }
-*/
-
-
 type AWSProvider struct {
 	SecretKey string `json:"secret_key"`
 	AccessKey string `json:"access_key"`
@@ -116,7 +102,6 @@ type AWSProvider struct {
 
 func (p *AWSProvider) cmdArgs() []string {
 	return []string{
-		"apply",
 		"-var", "secret_key=" + p.SecretKey,
 		"-var", "access_key=" + p.AccessKey,
 		"-var", "region=" + p.Region,
@@ -132,7 +117,6 @@ type GCCProvider struct {
 
 func (p *GCCProvider) cmdArgs() []string {
 	return []string{
-		"apply",
 		"-var", "project=" + p.Project,
 		"-var", "region=" + p.Region,
 		"-var", "account_file=account.json",

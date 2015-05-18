@@ -1,4 +1,5 @@
 {
+  "id": "my-gcc-1",
   "provider": "gcc",
   "masters": 3,
   "slaves": 13,
