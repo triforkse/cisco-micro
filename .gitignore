@@ -4,8 +4,6 @@
 /dev.json
 /account.json
 /dev/
-<<<<<<< HEAD
-=======
 /.idea/
 /.DS_Store
->>>>>>> 5af53b6fe46ee708e9b699285d3e3e292eee3c8e
+*.iml
