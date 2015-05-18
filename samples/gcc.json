@@ -1,8 +1,13 @@
 {
   "provider": "gcc",
+  "masters": 3,
+  "slaves": 13,
   "properties": {
-    "username": "foo",
-    "password": "bar",
-    "region": "eu"
+    "project": "cisco",
+    "region": "eu",
+    "private_key_id": "bf3387fc81dd63d1073f99a24736b0b1cd68ad6a",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nAIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcggEAEoGBALPXRDKB5/8Wq546\n77kWKy3g/KpXSeyLU66kmKJ//2mJGtWpJvHHoybhOK55uR1nOcwSW2JZLjJG3dSM\n8fQkaMZeLH41NbOGvW2UVuhvF6oMdko2ugGG1iEnRoRc4bzedjdFv2oBHxdseFxQ\n/XBC8XTwzHzBmdi2ZCe5E8VPA8ofAgMBAAECgYAd6Hfj+mytpISH/P8vBbvKlncO\nkROvLgCNs7vaknTUhUOcMtRSM0QzzBLUGVQqyqb3BDqEYZZoMBbmKUZ3trJhu44v\nvAQKXKLDMlKu1jHmsf2urzIXXDwejDJlUoG7AOVIxd2942CA0x5CwGXTBUz50jS9\nHXlucWHBCInmd8yJiQJBAN7uZxytndJ7lctwwvMJ3fOi9X3iOp6ixqoXha4fp7E5\nilpG+Zsj8Llvu4iOf4GFVKJWi6jGA57K441c/MnNBb0CQQDOhIxwaC29iD3W/rAk\nslwJUHYUE7rTiwRri4zoO6WLj0S4xTp3WnBYJ7TNllgZ/0cy8VGbFM2glBDLdcpu\nE+cLAkEArPYs3Aw72ZV3B+uJ5YSvRpsVesCuGGxUVJ2BYzI+Kftpw1czy9FbsJPm\n3TEp7jSjEHyzSJOxNV9Wo1QU8QD3xQJAcp7Sq5jGukkhuXAGJ3fu6SSFRMNmj/66\nZ04+2K4yRXEw/TRKLPA/Jk5zZR+qqlMrGzUgy+gR8Kv9Xk90GQBm3QJAegW2X52D\nxWTbmGPUP49j4iA340T4h/n7ga78KNWgTKIqaPiLZySw7aLCLLREJ2DjJiHWMvNN\n+c7dN+bSr+qFcg\u003d\u003d\n-----END PRIVATE KEY-----\n",
+    "client_email": "154987525398-rff5lh3rr1fseepg1v6pp4aqvg74r3km@developer.gserviceaccount.com",
+    "client_id": "554885524398-rff5lh3rd1fspepg116pp4aqvg74r3km.apps.googleusercontent.com"
   }
 }

@@ -16,6 +16,10 @@ type Config struct {
 	Properties json.RawMessage // Delay parsing until we know the provider
 }
 
+type Provider interface {
+	cmdArgs() []string
+}
+
 func main() {
 	filePath := flag.String("config", "micro.json", "the configuration file")
 
@@ -47,23 +51,28 @@ func RunTerraform(config Config) {
 
 	type Parser func(json.RawMessage) ([]string, error)
 
-	parsers := map[string]Parser{
-		"aws": ParseAWS,
+	parsers := map[string]Provider{
+		"aws": new(AWSProvider),
+		"gcc": new(GCCProvider),
 	}
 
-	parser, known := parsers[config.Provider]
+	provider, known := parsers[config.Provider]
 
 	if !known {
 		log.Fatal("Unknown provider: '" + config.Provider + "'")
 	}
 
-	args, err := parser(config.Properties)
-
+	err := json.Unmarshal(config.Properties, provider)
 	if err != nil {
 		log.Fatal("Invalid configuration. " + err.Error())
 	}
 
+	// TODO: call provider.prepare()
+
+	args := provider.cmdArgs()
+	fmt.Printf("%+v", args);
 	cmd := exec.Command("terraform", args...)
+
 
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -78,25 +87,55 @@ func RunTerraform(config Config) {
 	fmt.Printf("%s", out.String())
 }
 
-func ParseAWS(jsonData json.RawMessage) ([]string, error) {
+/*
+module "gcc" {
+                   source = "git::https://gitlab.trifork.se/flg/ms-infra-terraform-ccp.git//gcc?ref=master"
+                   account_file="{{account_file}}"
+                   gce_ssh_user="554985525398-p9se88l5e3fupvj1v8t6tujq5qsumh1q.apps.googleusercontent.com"
+                   gce_ssh_private_key_file="pkey"
+                   region ="europe-west1"
+                   zone="europe-west1-d"
+                   project="cs-cisco"
+                   image="ubuntu-os-cloud/ubuntu-1404-trusty-v20150128"
+                   master_machine_type="n1-standard-2"
+                   slave_machine_type= "n1-standard-4"
+                   network= "10.20.30.0/24"
+                   localaddress="92.111.228.8/32"
+                   domain="gcc.trifork.se"
+                   name="mymesoscluster"
+                   masters= "1"
+              }
+*/
 
-	var props struct {
-		SecretKey string `json:"secret_key"`
-		AccessKey string `json:"access_key"`
-		Region    string
+
+type AWSProvider struct {
+	SecretKey string `json:"secret_key"`
+	AccessKey string `json:"access_key"`
+	Region    string
+}
+
+func (p *AWSProvider) cmdArgs() []string {
+	return []string{
+		"apply",
+		"-var", "secret_key=" + p.SecretKey,
+		"-var", "access_key=" + p.AccessKey,
+		"-var", "region=" + p.Region,
+		"templates/aws",
 	}
+}
 
-	parseErr := json.Unmarshal(jsonData, &props)
 
-	if parseErr != nil {
-		return nil, parseErr
-	} else {
-		return []string{
-			"apply",
-			"-var", "secret_key=" + props.SecretKey,
-			"-var", "access_key=" + props.AccessKey,
-			"-var", "region=" + props.Region,
-			"templates/aws",
-		}, nil
+type GCCProvider struct {
+	Project       string
+	Region				string
+}
+
+func (p *GCCProvider) cmdArgs() []string {
+	return []string{
+		"apply",
+		"-var", "project=" + p.Project,
+		"-var", "region=" + p.Region,
+		"-var", "account_file=account.json",
+		"templates/gcc",
 	}
 }

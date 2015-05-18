@@ -9,7 +9,7 @@ build:
 	go build -o ./build/micro
 
 run:
-	go run ./src/main.go -config=$(config)
+	go run main.go -config=$(config)
 
 test:
 	mkdir -p build

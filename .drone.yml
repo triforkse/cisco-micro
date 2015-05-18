@@ -1,5 +1,3 @@
-image: mischief/docker-golang
-env:
-  - GOPATH=/var/cache/drone
+image: go1.4
 script:
   - make ci
