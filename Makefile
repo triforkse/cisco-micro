@@ -8,8 +8,8 @@ setup:
 build:
 	go build -o ./build/micro
 
-run:
-	go run main.go -config=$(config)
+run: build
+	./build/micro -config=$(config)
 
 test:
 	mkdir -p build
