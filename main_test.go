@@ -15,7 +15,7 @@ func TestReadConfig(t *testing.T) {
   }
 }
 
-func TestTerraformVars(t *testing.T) {
+func TestTerraformVarsAWS(t *testing.T) {
   provider := new(AWSProvider)
   provider.AccessKey = "MY_ACCESS"
   provider.SecretKey = "MY_SECRET"
@@ -27,6 +27,31 @@ func TestTerraformVars(t *testing.T) {
     "secret_key": "MY_SECRET",
     "access_key": "MY_ACCESS",
     "region": "MY_REGION",
+  }
+
+  if !reflect.DeepEqual(expected, vars) {
+    t.Errorf("Expected %v, got %v", expected, vars)
+  }
+}
+
+func TestTerraformVarsGCC(t *testing.T) {
+  provider := new(GCCProvider)
+  provider.Region = "MY_REGION"
+  provider.Project = "MY_PROJECT"
+  provider.AccountFile = "account.json"
+  //provider.PrivateKeyId = "MY_PRIVATE_KEY_ID"
+  //provider.PrivateKey = "MY_PRIVATE_KEY"
+  //provider.ClientEmail = "MY_CLIENT_EMAIL"
+
+  vars := provider.terraformVars()
+
+  expected := map[string]string{
+    "region": "MY_REGION",
+    "project": "MY_PROJECT",
+    "account_file": "account.json",
+    //"private_key_id": "MY_PRIVATE_KEY_ID",
+    //"private_key": "MY_PRIVATE_KEY",
+    //"client_email": "MY_CLIENT_EMAIL",
   }
 
   if !reflect.DeepEqual(expected, vars) {
