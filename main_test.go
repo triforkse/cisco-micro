@@ -1,7 +1,12 @@
 package main
 
-import "testing"
-import "reflect"
+import (
+  "testing"
+  "reflect"
+  "io/ioutil"
+  "encoding/json"
+  "os"
+)
 
 func TestReadConfig(t *testing.T) {
   config := ReadConfig("testdata/aws_test.json")
@@ -58,4 +63,39 @@ func TestTerraformVarsGCC(t *testing.T) {
   if !reflect.DeepEqual(expected, vars) {
     t.Errorf("Expected %v, got %v", expected, vars)
   }
+}
+
+func TestGccPrepare(t *testing.T) {
+  target := GCCProvider{
+    PrivateKeyId: "test_private_key_id",
+    PrivateKey: "test_private_key",
+    ClientEmail: "test_client_email",
+	  ClientId: "test_client_id",
+  }
+
+  target.prepare()
+  bytes, _ := ioutil.ReadFile(target.AccountFile)
+
+  type AccountStub struct {
+    PrivateKeyId  string `json:"private_key_id"`
+    PrivateKey 	  string `json:"private_key"`
+    ClientEmail   string `json:"client_email"`
+    ClientId	  string `json:"client_id"`
+  }
+
+  var accountStub AccountStub
+  json.Unmarshal(bytes, &accountStub)
+
+  expected := AccountStub{
+    PrivateKeyId: "test_private_key_id",
+    PrivateKey: "test_private_key",
+    ClientEmail: "test_client_email",
+	  ClientId: "test_client_id",
+  }
+
+  if !reflect.DeepEqual(expected, accountStub) {
+    t.Errorf("Expected %v, got %v", expected, accountStub)
+  }
+
+  defer os.Remove(target.AccountFile)
 }

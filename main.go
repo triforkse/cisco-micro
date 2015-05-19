@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"log"
 	"os/exec"
 	"path/filepath"
@@ -18,6 +19,8 @@ type Config struct {
 }
 
 type Provider interface {
+	prepare()
+	cleanup()
 	terraformVars() map[string]string
 }
 
@@ -76,8 +79,8 @@ func runTerraform(config Config) {
 
 	provider := provider(config)
 
-	//provider.prepare()
-	//defer {	provider.cleanup() }
+	provider.prepare()
+	defer provider.cleanup()
 
 	args := []string{"apply"}
 
@@ -124,20 +127,50 @@ func (p *AWSProvider) terraformVars() map[string]string {
 		"region": p.Region,
 	}
 }
+func (p *AWSProvider) prepare() { }
+func (p *AWSProvider) cleanup() { }
 
 
 type GCCProvider struct {
+	// JSON Fields
 	Project       string
-	Region		  string
-	AccountFile   string
+	Region				string
+	PrivateKeyId  string `json:"private_key_id"`
+	PrivateKey 	  string `json:"private_key"`
+	ClientEmail   string `json:"client_email"`
+	ClientId	  	string `json:"client_id"`
+
+	AccountFile   string `json:"-"` // Path to the temp file needed by terraform
 }
 
 func (p *GCCProvider) terraformVars() map[string]string {
-	fmt.Printf("CGG %+v", p)
 	return map[string]string{
 		"project":	p.Project,
 		"region": 	p.Region,
 		"nodes" : "1",
 		"account_file": "account.json",
 	}
+}
+
+func (p *GCCProvider) prepare() {
+	accountJson, _ := json.Marshal(map[string]string{
+		"private_key_id": p.PrivateKeyId,
+		"private_key":    p.PrivateKey,
+		"client_email":   p.ClientEmail,
+		"client_id":      p.ClientId,
+	})
+
+	accountFileName := filepath.Join(os.TempDir(), "account.json")
+	err := ioutil.WriteFile(accountFileName, accountJson, 0600)
+	if err != nil {
+		log.Fatal("Could not write account file at: " + accountFileName)
+	}
+
+	p.AccountFile = accountFileName
+}
+
+func (p *GCCProvider) cleanup() {
+	log.Printf("Removing file %v", p.AccountFile)
+	os.Remove(p.AccountFile)
+	// TODO Report error
 }
