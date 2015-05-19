@@ -20,8 +20,6 @@ coverage: test
 
 clean:
 	-rm -r ./build
-	-rm terraform.tfstate
-	-rm terraform.tfstate.backup
 
 ci: clean test
 
