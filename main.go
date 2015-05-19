@@ -148,7 +148,7 @@ func (p *GCCProvider) terraformVars() map[string]string {
 		"project":	p.Project,
 		"region": 	p.Region,
 		"nodes" : "1",
-		"account_file": "account.json",
+		"account_file": p.AccountFile,
 	}
 }
 
