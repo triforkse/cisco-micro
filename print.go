@@ -13,7 +13,7 @@ func printTable(title string, tbl map[string]string) {
 
   fmt.Printf("%s\n%s:%s\n\n", blue, title, noColor)
   for k, v := range tbl {
-    fmt.Printf("\t%s%s%s = %s%s%s\n", green, k, noColor, blue, v, noColor)
+    fmt.Printf("  %s%s%s = %s%s%s\n", green, k, noColor, blue, v, noColor)
   }
 
   fmt.Println("")
