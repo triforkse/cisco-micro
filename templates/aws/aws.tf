@@ -15,15 +15,19 @@ resource "aws_instance" "web" {
     instance_type = "m1.small"
     count = "1"
     security_groups = ["master_group"]
-    key_name = "trifork-pub"
+    key_name = "trifork-pub-${var.deployment_id}"
+
+    tags {
+      Name = "${var.deployment_id}_terraform"
+    }
 }
 
 resource "aws_security_group" "master_security" {
-  name = "master_group"
+  name = "master_group_${var.deployment_id}"
   description = "Allow all inbound traffic"
 
   tags {
-    Name = "security_master"
+    Name = "${var.deployment_id}_terraform"
   }
 }
 
@@ -50,7 +54,7 @@ resource "aws_security_group_rule" "allow_icmp" {
 
 
 resource "aws_key_pair" "deployer" {
-  key_name = "trifork-pub"
+  key_name = "trifork-pub-${var.deployment_id}"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC4/eg7kv1hWYO9qKI1kPjDyk4mb4HZAqoxHlTQufbmkkT0QD7vrLH4vlb8nV+QjBgl/tMbiUj+7ZK4OaAvMro4oypMP+exAYZNVAHF0Dc/rLLlZcSFo3EBhCNKmhH5rQhOzcTRMfAzWA704PXwqfYBTmDnaDjrtLZ6IpHJrXEc6Kll7wdWwmLiNvN8OeqQOpHLg70ERo/xPhfUy9BJccLUW1bdrt1YcIxwPewTXCwesTjmWj6QtcMLhgyjcEKeTWu9hbC9g01Td1ENAiEEVjSt9G7esu4qHUwoqryldjbG8mhVvsG4QdE/I8wPxdSIU5dSviYRRzCQ9OBCaF6nL6EJ stockholm@trifork.com"
 }
 
