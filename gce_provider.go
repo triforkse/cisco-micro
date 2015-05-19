@@ -43,11 +43,13 @@ func (p *GCCProvider) prepare() {
 		log.Fatal("Could not write account file at: " + accountFileName)
 	}
 
+  debugf("Google Account file: %s", accountFileName)
+
 	p.AccountFile = accountFileName
 }
 
 func (p *GCCProvider) cleanup() {
-	log.Printf("Removing file %v", p.AccountFile)
+	debugf("Removing file %v", p.AccountFile)
 	os.Remove(p.AccountFile)
 	// TODO Report error
 }
