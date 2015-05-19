@@ -1,6 +1,6 @@
 
 resource "google_compute_firewall" "mesos-firwall" {
-    name = "test"
+    name = "${var.deployment_id}-firewall"
     network = "${google_compute_network.mesos-net.name}"
 
     allow {
