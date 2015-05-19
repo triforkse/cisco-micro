@@ -14,7 +14,7 @@ resource "aws_instance" "web" {
     ami = "ami-b5620ac2"
     instance_type = "m1.small"
     count = "1"
-    security_groups = ["master_group"]
+    security_groups = ["${aws_security_group.master_security.name}"]
     key_name = "trifork-pub-${var.deployment_id}"
 
     tags {
