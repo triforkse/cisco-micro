@@ -48,6 +48,7 @@ func TestTerraformVarsGCC(t *testing.T) {
   expected := map[string]string{
     "region": "MY_REGION",
     "project": "MY_PROJECT",
+    "nodes": "1",
     "account_file": "account.json",
     //"private_key_id": "MY_PRIVATE_KEY_ID",
     //"private_key": "MY_PRIVATE_KEY",
