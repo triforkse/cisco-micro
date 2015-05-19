@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 )
 
+var isDebugging bool
+
 type Config struct {
 	Id         string
 	Provider   string
@@ -25,9 +27,11 @@ type Provider interface {
 
 func main() {
 	filePath := flag.String("config", "micro.json", "the configuration file")
+	debugging := flag.Bool("debug", false, "show debug info")
 
 	flag.Parse()
 
+	isDebugging = *debugging
 	config := ReadConfig(*filePath)
 
 	runTerraform(config)
@@ -96,7 +100,7 @@ func runTerraform(config Config) {
 	// Tell it what template to use based on the provider.
 	args = append(args, filepath.Join("templates", config.Provider))
 
-	fmt.Printf("terraform %+v", args)
+	debugf("terraform %+v", args)
 
 	// Run Terraform
 	cmd := exec.Command("terraform", args...)
@@ -112,4 +116,8 @@ func runTerraform(config Config) {
 	}
 
 	fmt.Printf("%s", out.String())
+
+	printTable("Cluster Properties", map[string]string{
+		"ID": config.Id,
+	})
 }
