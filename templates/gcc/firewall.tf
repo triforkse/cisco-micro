@@ -1,6 +1,7 @@
+
 resource "google_compute_firewall" "mesos-firwall" {
     name = "test"
-    network = "${var.deployment_id}-net"
+    network = "${google_compute_network.mesos-net.name}"
 
     allow {
         protocol = "icmp"

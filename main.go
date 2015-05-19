@@ -128,7 +128,7 @@ func (p *AWSProvider) terraformVars() map[string]string {
 
 type GCCProvider struct {
 	Project       string
-	Region				string
+	Region		  string
 	AccountFile   string
 }
 
@@ -137,6 +137,7 @@ func (p *GCCProvider) terraformVars() map[string]string {
 	return map[string]string{
 		"project":	p.Project,
 		"region": 	p.Region,
-		"account_file": p.AccountFile,
+		"nodes" : "1",
+		"account_file": "account.json",
 	}
 }
