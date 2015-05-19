@@ -1,13 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os/exec"
+	"os"
 	"path/filepath"
 )
 
@@ -34,7 +33,17 @@ func main() {
 	isDebugging = *debugging
 	config := ReadConfig(*filePath)
 
-	runTerraform(config)
+	var action string
+	cmdArgs := flag.Args()
+	if len(cmdArgs) > 0 {
+		action = cmdArgs[len(cmdArgs) - 1]
+	}	else {
+		action = "apply"
+	}
+
+	debugf("Action: %s", action)
+
+	runTerraform(action, config)
 }
 
 func ReadConfig(filePath string) Config {
@@ -79,14 +88,14 @@ func provider(config Config) Provider {
 }
 
 
-func runTerraform(config Config) {
+func runTerraform(action string, config Config) {
 
 	provider := provider(config)
 
 	provider.prepare()
 	defer provider.cleanup()
 
-	args := []string{"apply"}
+	args := []string{action}
 
 	// Determine if we have an old tfstate file we need to load.
 	args = append(args, "-state=" + filepath.Join(".micro", config.Id + ".tfstate"))
@@ -104,18 +113,13 @@ func runTerraform(config Config) {
 
 	// Run Terraform
 	cmd := exec.Command("terraform", args...)
-
-	var out bytes.Buffer
-	cmd.Stdout = &out
-
-	var outErr bytes.Buffer
-	cmd.Stderr = &outErr
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
 	if cmd.Run() != nil {
-		log.Fatal(outErr.String())
+		os.Exit(1)
 	}
-
-	fmt.Printf("%s", out.String())
 
 	printTable("Cluster Properties", map[string]string{
 		"ID": config.Id,
