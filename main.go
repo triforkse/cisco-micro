@@ -18,7 +18,7 @@ type Config struct {
 }
 
 type Provider interface {
-	cmdArgs() map[string]string
+	terraformVars() map[string]string
 }
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 	flag.Parse()
 
 	config := ReadConfig(*filePath)
-	RunTerraform(config)
+	runTerraform(config)
 }
 
 func ReadConfig(filePath string) Config {
@@ -48,8 +48,8 @@ func ReadConfig(filePath string) Config {
 	return config
 }
 
-func RunTerraform(config Config) {
 
+func provider(config Config) Provider {
 	type Parser func(json.RawMessage) ([]string, error)
 
 	parsers := map[string]Provider{
@@ -68,6 +68,14 @@ func RunTerraform(config Config) {
 		log.Fatal("Invalid configuration. " + err.Error())
 	}
 
+	return provider
+}
+
+
+func runTerraform(config Config) {
+
+	provider := provider(config)
+
 	//provider.prepare()
 	//defer {	provider.cleanup() }
 
@@ -77,7 +85,7 @@ func RunTerraform(config Config) {
 	args = append(args, "-state=" + filepath.Join(".micro", config.Id + ".tfstate"))
 
 	// Pass in the arguments
-	for k, v := range provider.cmdArgs() {
+	for k, v := range provider.terraformVars() {
 		args = append(args, "-var", k + "=" + v)
 	}
 	args = append(args, "-var", "deployment_id=" + config.Id)
@@ -109,7 +117,7 @@ type AWSProvider struct {
 	Region    string
 }
 
-func (p *AWSProvider) cmdArgs() map[string]string {
+func (p *AWSProvider) terraformVars() map[string]string {
 	return map[string]string{
 		"secret_key": p.SecretKey,
 		"access_key": p.AccessKey,
@@ -124,7 +132,7 @@ type GCCProvider struct {
 	AccountFile   string
 }
 
-func (p *GCCProvider) cmdArgs() map[string]string {
+func (p *GCCProvider) terraformVars() map[string]string {
 	fmt.Printf("CGG %+v", p)
 	return map[string]string{
 		"project":	p.Project,
