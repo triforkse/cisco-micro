@@ -12,74 +12,75 @@ import (
 
 var isDebugging bool
 
-type Config struct {
-	Id         string
-	Provider   string
-	Properties json.RawMessage // Delay parsing until we know the provider
-}
-
 type Provider interface {
+	populate()
+	configId() string
+	providerId() string
 	prepare()
 	cleanup()
 	terraformVars() map[string]string
 }
 
 func main() {
-	filePath := flag.String("config", "micro.json", "the configuration file")
+	filePath := flag.String("config", "infrastructure.json", "the configuration file")
 	debugging := flag.Bool("debug", false, "show debug info")
 
 	flag.Parse()
 
 	isDebugging = *debugging
-	config := ReadConfig(*filePath)
 
-	var action string
+	var command string
 	cmdArgs := flag.Args()
 	if len(cmdArgs) > 0 {
-		action = cmdArgs[len(cmdArgs) - 1]
+		command = cmdArgs[0]
 	}	else {
-		action = "apply"
+		command = "apply"
 	}
 
-	debugf("Action: %s", action)
+	debugf("Command: %s", command)
+	debugf("Config File: %s", *filePath)
 
-	runTerraform(action, config)
+	switch command {
+		case "init":
+			providerId := cmdArgs[1]
+			initCmd(providerId, *filePath)
+		case "apply", "destroy", "plan":
+			config := provider(*filePath)
+			terraformCmd(command, config)
+	}
 }
 
-func ReadConfig(filePath string) Config {
+func readProviderFile(filePath string) (providerId string, bytes []byte, err error) {
 
 	// Determine what provider we are using,
 	// and parse the configuration accordingly.
 
-	bytes, _ := ioutil.ReadFile(filePath)
+	bytes, _ = ioutil.ReadFile(filePath)
 
-	var config Config
-	parseErr := json.Unmarshal(bytes, &config)
+	var config struct {
+		Provider string
+	}
+	err = json.Unmarshal(bytes, &config)
 
-	if parseErr != nil {
+	if err == nil {
+		providerId = config.Provider
+	}
+
+	return
+}
+
+
+func provider(filePath string) Provider {
+
+	providerId, bytes, err := readProviderFile(filePath)
+	if err != nil {
 		absPath, _ := filepath.Abs(filePath)
 		log.Fatal("Failed to read configuration file: " + absPath)
 	}
 
-	return config
-}
+	provider := newProvider(providerId)
 
-
-func provider(config Config) Provider {
-	type Parser func(json.RawMessage) ([]string, error)
-
-	parsers := map[string]Provider{
-		"aws": new(AWSProvider),
-		"gcc": new(GCCProvider),
-	}
-
-	provider, known := parsers[config.Provider]
-
-	if !known {
-		log.Fatal("Unknown provider: '" + config.Provider + "'")
-	}
-
-	err := json.Unmarshal(config.Properties, provider)
+	err = json.Unmarshal(bytes, provider)
 	if err != nil {
 		log.Fatal("Invalid configuration. " + err.Error())
 	}
@@ -88,26 +89,24 @@ func provider(config Config) Provider {
 }
 
 
-func runTerraform(action string, config Config) {
-
-	provider := provider(config)
+func terraformCmd(command string, provider Provider) {
 
 	provider.prepare()
 	defer provider.cleanup()
 
-	args := []string{action}
+	args := []string{command}
 
 	// Determine if we have an old tfstate file we need to load.
-	args = append(args, "-state=" + filepath.Join(".micro", config.Id + ".tfstate"))
+	args = append(args, "-state=" + filepath.Join(".micro", provider.configId() + ".tfstate"))
 
 	// Pass in the arguments
 	for k, v := range provider.terraformVars() {
 		args = append(args, "-var", k + "=" + v)
 	}
-	args = append(args, "-var", "deployment_id=" + config.Id)
+	args = append(args, "-var", "deployment_id=" + provider.configId())
 
 	// Tell it what template to use based on the provider.
-	args = append(args, filepath.Join("templates", config.Provider))
+	args = append(args, filepath.Join("templates", provider.providerId()))
 
 	debugf("terraform %+v", args)
 
@@ -122,6 +121,7 @@ func runTerraform(action string, config Config) {
 	}
 
 	printTable("Cluster Properties", map[string]string{
-		"ID": config.Id,
+		"Type": provider.providerId(),
+		"ID": provider.configId(),
 	})
 }
