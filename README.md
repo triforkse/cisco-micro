@@ -19,17 +19,24 @@ First you will have to write a configuration file for your cluster. You can
 create a cluster on the `Amazon Cloud` or `Google Cloud`. You can start by
 copying an example configuration from the `samples/` directory.
 
+Or by running:
+
+```bash
+build/micro -provider=aws init
+```
+
+You can use `aws` or `gcc` as cloud providers. The resulting configuration file
+will be stored in `infrastructure.json`
+
 Here is how an example amazon setup could look:
 
 ```json
 {
   "id": "your-aws-1",
   "provider": "aws",
-  "properties": {
-    "secret_key": "af4YY1yeXeQkByTYUYFtBBLUjL4YXXFTHaFBvaDb",
-    "access_key": "7AIAIOEIEEEAZQ4AIE67",
-    "region": "eu-west-1"
-  }
+  "secret_key": "af4YY1yeXeQkByTYUYFtBBLUjL4YXXFTHaFBvaDb",
+  "access_key": "7AIAIOEIEEEAZQ4AIE67",
+  "region": "eu-west-1"
 }
 ```
 
