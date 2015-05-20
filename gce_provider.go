@@ -10,8 +10,10 @@ import (
 
 type GCCProvider struct {
 	// JSON Fields
-	Project       string
-	Region				string
+	Id            string `json:"id"`
+	Provider      string `json:"provider"`
+	Project       string `json:"project"`
+	Region				string `json:"region"`
 	PrivateKeyId  string `json:"private_key_id"`
 	PrivateKey 	  string `json:"private_key"`
 	ClientEmail   string `json:"client_email"`
@@ -52,4 +54,24 @@ func (p *GCCProvider) cleanup() {
 	debugf("Removing file %v", p.AccountFile)
 	os.Remove(p.AccountFile)
 	// TODO Report error
+}
+
+func (p *GCCProvider) configId() string {
+	return p.Id
+}
+
+func (p *GCCProvider) providerId() string {
+	return "gcc"
+}
+
+func (p *GCCProvider) populate() {
+	p.Id = randStr(16)
+	p.Provider = "gcc"
+  p.Region = "eu-west-1"
+	p.Project = "REPLACE WITH YOUR ACCESS KEY"
+	p.Region = "eu"
+	p.PrivateKeyId = "REPLACE WITH YOUR PRIVATE KEY ID FROM YOUR ACCOUNT FILE"
+	p.PrivateKey = "REPLACE WITH YOUR PRIVATE KEY FROM YOUR ACCOUNT FILE"
+	p.ClientEmail = "REPLACE WITH YOUR CLIENT EMAIL FROM YOUR ACCOUNT FILE"
+	p.ClientId = "REPLACE WITH YOUR CLIENT ID FROM YOUR ACCOUNT FILE"
 }
