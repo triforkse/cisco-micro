@@ -23,6 +23,7 @@ type Provider interface {
 
 func main() {
 	filePath := flag.String("config", "infrastructure.json", "the configuration file")
+	gitRepo := flag.String("gitrepo", "https://github.com/CiscoCloud/microservices-infrastructure.git", "the reopostory for the infrastructure project")
 	debugging := flag.Bool("debug", false, "show debug info")
 
 	flag.Parse()
@@ -39,6 +40,9 @@ func main() {
 
 	debugf("Command: %s", command)
 	debugf("Config File: %s", *filePath)
+	debugf("Git repo: %s", *gitRepo)
+
+	installMsInfra(*gitRepo)
 
 	switch command {
 		case "init":
@@ -86,6 +90,20 @@ func provider(filePath string) Provider {
 	}
 
 	return provider
+}
+
+func installMsInfra(gitRepo string) {
+
+	cmd := exec.Command("git", []string{"clone", "--depth=1", gitRepo, ".micro/src"}...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal("Error cloning from git. ", err.Error())
+		os.Exit(1)
+	}
 }
 
 
