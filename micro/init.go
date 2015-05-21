@@ -5,13 +5,14 @@ import (
   "io/ioutil"
   "log"
   "bytes"
+  "cisco/micro/provider"
 )
 
 func initCmd(providerId string, filePath string) {
-  config := newProvider(providerId)
-  config.populate();
+  config := provider.New(providerId)
+  config.Populate();
 
-  debugf("Generating Config: %+v", config)
+  config.Debugf("Generating Config: %+v", config)
 
   data, err := json.Marshal(config)
 

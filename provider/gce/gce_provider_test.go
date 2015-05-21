@@ -1,4 +1,4 @@
-package main
+package gce
 
 import (
   "testing"
@@ -9,14 +9,14 @@ import (
 )
 
 func TestGccPrepare(t *testing.T) {
-  target := GCCProvider{
+  target := Provider{
     PrivateKeyId: "test_private_key_id",
     PrivateKey: "test_private_key",
     ClientEmail: "test_client_email",
 	  ClientId: "test_client_id",
   }
 
-  target.prepare()
+  target.Prepare()
   bytes, _ := ioutil.ReadFile(target.AccountFile)
 
   type AccountStub struct {
@@ -44,12 +44,12 @@ func TestGccPrepare(t *testing.T) {
 }
 
 func TestTerraformVarsGCC(t *testing.T) {
-  provider := new(GCCProvider)
+  provider := new(Provider)
   provider.Region = "MY_REGION"
   provider.Project = "MY_PROJECT"
   provider.AccountFile = "account.json"
 
-  vars := provider.terraformVars()
+  vars := provider.TerraformVars()
 
   expected := map[string]string{
     "region": "MY_REGION",

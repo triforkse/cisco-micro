@@ -1,18 +1,17 @@
-package main
+package aws
 
 import (
   "testing"
   "reflect"
 )
 
-
 func TestTerraformVarsAWS(t *testing.T) {
-  provider := new(AWSProvider)
+  provider := new(Provider)
   provider.AccessKey = "MY_ACCESS"
   provider.SecretKey = "MY_SECRET"
   provider.Region = "MY_REGION"
 
-  vars := provider.terraformVars()
+  vars := provider.TerraformVars()
 
   expected := map[string]string{
     "secret_key": "MY_SECRET",

@@ -1,10 +1,10 @@
-package main
+package strutil
 
 import (
   "crypto/rand"
 )
 
-func randStr(strSize int) string {
+func Random(strSize int) string {
 
   dictionary := "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 

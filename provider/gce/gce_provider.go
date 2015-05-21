@@ -1,4 +1,4 @@
-package main
+package gce
 
 import (
 	"encoding/json"
@@ -6,9 +6,11 @@ import (
 	"os"
 	"log"
 	"path/filepath"
+  "cisco/micro/util/strutil"
+  "cisco/micro/logger"
 )
 
-type GCCProvider struct {
+type Provider struct {
 	// JSON Fields
 	Id            string `json:"id"`
 	Provider      string `json:"provider"`
@@ -22,7 +24,7 @@ type GCCProvider struct {
 	AccountFile   string `json:"-"` // Path to the temp file needed by terraform
 }
 
-func (p *GCCProvider) terraformVars() map[string]string {
+func (p *Provider) TerraformVars() map[string]string {
 	return map[string]string{
 		"project":	p.Project,
 		"region": 	p.Region,
@@ -31,7 +33,7 @@ func (p *GCCProvider) terraformVars() map[string]string {
 	}
 }
 
-func (p *GCCProvider) prepare() {
+func (p *Provider) Prepare() {
 	accountJson, _ := json.Marshal(map[string]string{
 		"private_key_id": p.PrivateKeyId,
 		"private_key":    p.PrivateKey,
@@ -45,29 +47,29 @@ func (p *GCCProvider) prepare() {
 		log.Fatal("Could not write account file at: " + accountFileName)
 	}
 
-  debugf("Google Account file: %s", accountFileName)
+  logger.Debugf("Google Account file: %s", accountFileName)
 
 	p.AccountFile = accountFileName
 }
 
-func (p *GCCProvider) cleanup() {
-	debugf("Removing file %v", p.AccountFile)
+func (p *Provider) Cleanup() {
+	logger.Debugf("Removing file %v", p.AccountFile)
 	os.Remove(p.AccountFile)
 	// TODO Report error
 }
 
-func (p *GCCProvider) configId() string {
+func (p *Provider) ConfigId() string {
 	return p.Id
 }
 
-func (p *GCCProvider) providerId() string {
+func (p *Provider) ProviderId() string {
 	return "gcc"
 }
 
-func (p *GCCProvider) populate() {
-	p.Id = randStr(16)
+func (p *Provider) Populate() {
+	p.Id = strutil.Random(16)
 	p.Provider = "gcc"
-  p.Region = "eu-west-1"
+    p.Region = "eu-west-1"
 	p.Project = "REPLACE WITH YOUR ACCESS KEY"
 	p.Region = "eu"
 	p.PrivateKeyId = "REPLACE WITH YOUR PRIVATE KEY ID FROM YOUR ACCOUNT FILE"
