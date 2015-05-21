@@ -1,34 +1,34 @@
 package gce
 
 import (
+	"cisco/micro/logger"
+	"cisco/micro/util/strutil"
 	"encoding/json"
 	"io/ioutil"
-	"os"
 	"log"
+	"os"
 	"path/filepath"
-  "cisco/micro/util/strutil"
-  "cisco/micro/logger"
 )
 
 type Config struct {
 	// JSON Fields
-	Id            string `json:"id"`
-	Provider      string `json:"provider"`
-	Project       string `json:"project"`
-	Region				string `json:"region"`
-	PrivateKeyId  string `json:"private_key_id"`
-	PrivateKey 	  string `json:"private_key"`
-	ClientEmail   string `json:"client_email"`
-	ClientId	  	string `json:"client_id"`
+	Id           string `json:"id"`
+	Provider     string `json:"provider"`
+	Project      string `json:"project"`
+	Region       string `json:"region"`
+	PrivateKeyId string `json:"private_key_id"`
+	PrivateKey   string `json:"private_key"`
+	ClientEmail  string `json:"client_email"`
+	ClientId     string `json:"client_id"`
 
-	AccountFile   string `json:"-"` // Path to the temp file needed by terraform
+	AccountFile string `json:"-"` // Path to the temp file needed by terraform
 }
 
 func (p *Config) TerraformVars() map[string]string {
 	return map[string]string{
-		"project":	p.Project,
-		"region": 	p.Region,
-		"nodes" : "1",
+		"project":      p.Project,
+		"region":       p.Region,
+		"nodes":        "1",
 		"account_file": p.AccountFile,
 	}
 }
@@ -47,7 +47,7 @@ func (p *Config) Prepare() {
 		log.Fatal("Could not write account file at: " + accountFileName)
 	}
 
-  logger.Debugf("Google Account file: %s", accountFileName)
+	logger.Debugf("Google Account file: %s", accountFileName)
 
 	p.AccountFile = accountFileName
 }
@@ -69,7 +69,7 @@ func (p *Config) ProviderId() string {
 func (p *Config) Populate() {
 	p.Id = strutil.Random(16)
 	p.Provider = "gcc"
-  p.Region = "eu-west-1"
+	p.Region = "eu-west-1"
 	p.Project = "REPLACE WITH YOUR ACCESS KEY"
 	p.Region = "eu"
 	p.PrivateKeyId = "REPLACE WITH YOUR PRIVATE KEY ID FROM YOUR ACCOUNT FILE"

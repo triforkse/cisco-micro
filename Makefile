@@ -4,7 +4,8 @@ action ?= "apply"
 all: build
 
 setup:
-	go get golang.org/x/tools/cmd/cover
+	go get -u golang.org/x/tools/cmd/cover
+	go get -u github.com/golang/lint/golint
 
 build:
 	go build -o build/micro cisco/micro/micro
@@ -14,14 +15,14 @@ run: build
 
 test:
 	mkdir -p build
-	go test -coverprofile=build/coverage.out provider/**/*.go
+	go test ./...
 
-coverage: test
-	go tool cover -html=build/coverage.out
+coverage:
+	./goclean.sh
 
 clean:
 	-rm -r ./build
 
-ci: clean test
+ci: clean coverage
 
 .PHONY: build run test ci clean

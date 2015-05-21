@@ -1,75 +1,74 @@
 package provider
 
 import (
-  "io/ioutil"
-  "encoding/json"
-  "path/filepath"
-  "cisco/micro/provider/aws"
-  "cisco/micro/provider/gce"
+	"cisco/micro/provider/aws"
+	"cisco/micro/provider/gce"
+	"encoding/json"
+	"io/ioutil"
+	"path/filepath"
 )
 
 import (
-  "log"
+	"log"
 )
 
 type Provider interface {
-  Populate()
-  ConfigId() string
-  ProviderId() string
-  Prepare()
-  Cleanup()
-  TerraformVars() map[string]string
+	Populate()
+	ConfigId() string
+	ProviderId() string
+	Prepare()
+	Cleanup()
+	TerraformVars() map[string]string
 }
 
 func New(providerId string) Provider {
-  providers := map[string]Provider {
-    "aws": new(aws.Config),
-    "gcc": new(gce.Config),
-  }
+	providers := map[string]Provider{
+		"aws": new(aws.Config),
+		"gcc": new(gce.Config),
+	}
 
-  provider, known := providers[providerId]
+	provider, known := providers[providerId]
 
-  if !known {
-    log.Fatal("Unknown provider: '" + providerId + "'")
-  }
+	if !known {
+		log.Fatal("Unknown provider: '" + providerId + "'")
+	}
 
-  return provider
+	return provider
 }
 
 func readFile(filePath string) (providerId string, bytes []byte, err error) {
 
-  // Determine what provider we are using,
-  // and parse the configuration accordingly.
+	// Determine what provider we are using,
+	// and parse the configuration accordingly.
 
-  bytes, _ = ioutil.ReadFile(filePath)
+	bytes, _ = ioutil.ReadFile(filePath)
 
-  var config struct {
-    Provider string
-  }
-  err = json.Unmarshal(bytes, &config)
+	var config struct {
+		Provider string
+	}
+	err = json.Unmarshal(bytes, &config)
 
-  if err == nil {
-    providerId = config.Provider
-  }
+	if err == nil {
+		providerId = config.Provider
+	}
 
-  return
+	return
 }
-
 
 func FromFile(filePath string) Provider {
 
-  providerId, bytes, err := readFile(filePath)
-  if err != nil {
-    absPath, _ := filepath.Abs(filePath)
-    log.Fatal("Failed to read configuration file: " + absPath)
-  }
+	providerId, bytes, err := readFile(filePath)
+	if err != nil {
+		absPath, _ := filepath.Abs(filePath)
+		log.Fatal("Failed to read configuration file: " + absPath)
+	}
 
-  provider := New(providerId)
+	provider := New(providerId)
 
-  err = json.Unmarshal(bytes, provider)
-  if err != nil {
-    log.Fatal("Invalid configuration. " + err.Error())
-  }
+	err = json.Unmarshal(bytes, provider)
+	if err != nil {
+		log.Fatal("Invalid configuration. " + err.Error())
+	}
 
-  return provider
+	return provider
 }

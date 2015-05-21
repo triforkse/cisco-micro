@@ -1,11 +1,11 @@
 package main
 
 import (
-	"path/filepath"
-	"os/exec"
-	"os"
 	"cisco/micro/logger"
 	"cisco/micro/provider"
+	"os"
+	"os/exec"
+	"path/filepath"
 )
 
 func terraformCmd(command string, provider provider.Provider) {
@@ -16,13 +16,13 @@ func terraformCmd(command string, provider provider.Provider) {
 	args := []string{command}
 
 	// Determine if we have an old tfstate file we need to load.
-	args = append(args, "-state=" + filepath.Join(".micro", provider.ConfigId() + ".tfstate"))
+	args = append(args, "-state="+filepath.Join(".micro", provider.ConfigId()+".tfstate"))
 
 	// Pass in the arguments
 	for k, v := range provider.TerraformVars() {
-	args = append(args, "-var", k + "=" + v)
+		args = append(args, "-var", k+"="+v)
 	}
-	args = append(args, "-var", "deployment_id=" + provider.ConfigId())
+	args = append(args, "-var", "deployment_id="+provider.ConfigId())
 
 	// Tell it what template to use based on the provider.
 	args = append(args, filepath.Join("templates", provider.ProviderId()))
@@ -36,11 +36,11 @@ func terraformCmd(command string, provider provider.Provider) {
 	cmd.Stderr = os.Stderr
 
 	if cmd.Run() != nil {
-	os.Exit(1)
+		os.Exit(1)
 	}
 
 	logger.PrintTable("Cluster Properties", map[string]string{
-	"Type": provider.ProviderId(),
-	"ID": provider.ConfigId(),
+		"Type": provider.ProviderId(),
+		"ID":   provider.ConfigId(),
 	})
 }

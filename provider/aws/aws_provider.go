@@ -1,7 +1,7 @@
 package aws
 
 import (
-  "cisco/micro/util/strutil"
+	"cisco/micro/util/strutil"
 )
 
 type Config struct {
@@ -16,13 +16,13 @@ func (p *Config) TerraformVars() map[string]string {
 	return map[string]string{
 		"secret_key": p.SecretKey,
 		"access_key": p.AccessKey,
-		"region": p.Region,
+		"region":     p.Region,
 	}
 }
 
-func (p *Config) Prepare() { }
+func (p *Config) Prepare() {}
 
-func (p *Config) Cleanup() { }
+func (p *Config) Cleanup() {}
 
 func (p *Config) ConfigId() string {
 	return p.Id
@@ -36,6 +36,6 @@ func (p *Config) Populate() {
 	p.Id = strutil.Random(16)
 	p.Provider = "aws"
 	p.SecretKey = "REPLACE WITH YOUR SECRET KEY"
-  p.AccessKey = "REPLACE WITH YOUR ACCESS KEY"
+	p.AccessKey = "REPLACE WITH YOUR ACCESS KEY"
 	p.Region = "eu-west-1"
 }
