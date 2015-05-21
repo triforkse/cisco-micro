@@ -4,13 +4,17 @@ import (
 	"flag"
 	"cisco/micro/logger"
 	"cisco/micro/provider"
+  "os/exec"
+  "os"
+  "log"
 )
 
 func main() {
 	filePath := flag.String("config", "infrastructure.json", "the configuration file")
 	isDebugging := flag.Bool("debug", false, "show debug info")
+  gitRepo := flag.String("gitrepo", "https://github.com/CiscoCloud/microservices-infrastructure.git", "the reopostory for the infrastructure project")
 
-	flag.Parse()
+  flag.Parse()
 
 	logger.EnableDebug(*isDebugging)
 
@@ -22,8 +26,11 @@ func main() {
 		command = "apply"
 	}
 
+  logger.Debugf("Git repo: %s", *gitRepo)
 	logger.Debugf("Command: %s", command)
 	logger.Debugf("Config File: %s", *filePath)
+
+  installMsInfra(*gitRepo)
 
 	switch command {
 		case "init":
@@ -34,4 +41,17 @@ func main() {
       // TODO: handle read error here, not in the lib
 			terraformCmd(command, config)
 	}
+}
+
+func installMsInfra(gitRepo string) {
+
+  cmd := exec.Command("git", []string{"clone", "--depth=1", gitRepo, ".micro/src"}...)
+  cmd.Stdin = os.Stdin
+  cmd.Stdout = os.Stdout
+  cmd.Stderr = os.Stderr
+
+  err := cmd.Run()
+  if err != nil {
+    log.Fatal("Error cloning from git. ", err.Error())
+  }
 }
