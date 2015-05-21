@@ -6,7 +6,7 @@ import (
 )
 
 func TestTerraformVarsAWS(t *testing.T) {
-  provider := new(Provider)
+  provider := new(Config)
   provider.AccessKey = "MY_ACCESS"
   provider.SecretKey = "MY_SECRET"
   provider.Region = "MY_REGION"

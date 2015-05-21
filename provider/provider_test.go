@@ -2,7 +2,10 @@ package provider
 
 import (
   "testing"
+  //"cisco/micro/provider/aws"
+  "reflect"
   "cisco/micro/provider/aws"
+  //"fmt"
 )
 
 func TestReadConfig(t *testing.T) {
@@ -17,6 +20,10 @@ func TestReadConfig(t *testing.T) {
   }
 
   // Make sure we produce the correct type.
-  config.(aws.Provider)
+
+  var expectedType aws.Config
+  if reflect.TypeOf(config) != reflect.TypeOf(&expectedType) {
+    t.Error("the wrong config type was produced")
+  }
 }
 

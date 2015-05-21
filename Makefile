@@ -14,7 +14,7 @@ run: build
 
 test:
 	mkdir -p build
-	go test -coverprofile=build/coverage.out
+	go test -coverprofile=build/coverage.out provider/**/*.go
 
 coverage: test
 	go tool cover -html=build/coverage.out

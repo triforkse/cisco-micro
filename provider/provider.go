@@ -23,8 +23,8 @@ type Provider interface {
 
 func New(providerId string) Provider {
   providers := map[string]Provider {
-    "aws": new(gce.Provider),
-    "gcc": new(aws.Provider),
+    "aws": new(aws.Config),
+    "gcc": new(gce.Config),
   }
 
   provider, known := providers[providerId]

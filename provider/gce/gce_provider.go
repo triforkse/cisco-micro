@@ -10,7 +10,7 @@ import (
   "cisco/micro/logger"
 )
 
-type Provider struct {
+type Config struct {
 	// JSON Fields
 	Id            string `json:"id"`
 	Provider      string `json:"provider"`
@@ -24,7 +24,7 @@ type Provider struct {
 	AccountFile   string `json:"-"` // Path to the temp file needed by terraform
 }
 
-func (p *Provider) TerraformVars() map[string]string {
+func (p *Config) TerraformVars() map[string]string {
 	return map[string]string{
 		"project":	p.Project,
 		"region": 	p.Region,
@@ -33,7 +33,7 @@ func (p *Provider) TerraformVars() map[string]string {
 	}
 }
 
-func (p *Provider) Prepare() {
+func (p *Config) Prepare() {
 	accountJson, _ := json.Marshal(map[string]string{
 		"private_key_id": p.PrivateKeyId,
 		"private_key":    p.PrivateKey,
@@ -52,24 +52,24 @@ func (p *Provider) Prepare() {
 	p.AccountFile = accountFileName
 }
 
-func (p *Provider) Cleanup() {
+func (p *Config) Cleanup() {
 	logger.Debugf("Removing file %v", p.AccountFile)
 	os.Remove(p.AccountFile)
 	// TODO Report error
 }
 
-func (p *Provider) ConfigId() string {
+func (p *Config) ConfigId() string {
 	return p.Id
 }
 
-func (p *Provider) ProviderId() string {
+func (p *Config) ProviderId() string {
 	return "gcc"
 }
 
-func (p *Provider) Populate() {
+func (p *Config) Populate() {
 	p.Id = strutil.Random(16)
 	p.Provider = "gcc"
-    p.Region = "eu-west-1"
+  p.Region = "eu-west-1"
 	p.Project = "REPLACE WITH YOUR ACCESS KEY"
 	p.Region = "eu"
 	p.PrivateKeyId = "REPLACE WITH YOUR PRIVATE KEY ID FROM YOUR ACCOUNT FILE"

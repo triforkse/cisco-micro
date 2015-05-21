@@ -9,7 +9,7 @@ import (
 )
 
 func TestGccPrepare(t *testing.T) {
-  target := Provider{
+  target := Config{
     PrivateKeyId: "test_private_key_id",
     PrivateKey: "test_private_key",
     ClientEmail: "test_client_email",
@@ -44,7 +44,7 @@ func TestGccPrepare(t *testing.T) {
 }
 
 func TestTerraformVarsGCC(t *testing.T) {
-  provider := new(Provider)
+  provider := new(Config)
   provider.Region = "MY_REGION"
   provider.Project = "MY_PROJECT"
   provider.AccountFile = "account.json"
