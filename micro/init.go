@@ -6,13 +6,14 @@ import (
   "log"
   "bytes"
   "cisco/micro/provider"
+  "cisco/micro/logger"
 )
 
 func initCmd(providerId string, filePath string) {
   config := provider.New(providerId)
   config.Populate();
 
-  config.Debugf("Generating Config: %+v", config)
+  logger.Debugf("Generating Config: %+v", config)
 
   data, err := json.Marshal(config)
 

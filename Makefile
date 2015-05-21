@@ -7,7 +7,7 @@ setup:
 	go get golang.org/x/tools/cmd/cover
 
 build:
-	go build -o ./build/micro micro
+	go build -o build/micro cisco/micro/micro
 
 run: build
 	./build/micro -config=$(config) -debug=true $(action)
