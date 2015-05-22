@@ -39,6 +39,5 @@ done
 go tool cover -func build/coverage.cov
 
 # Submit the test coverage result to coveralls.io
-command -v "goveralls -coverprofile=build/coverage.cov -service=drone.io -repotoken $COVERALLS_TOKEN" >/dev/null 2>&1 \
-  || { echo "can't push coverage report, 'goverall' is not installed" >&2; }
+goveralls -coverprofile=build/coverage.cov -service=drone.io -repotoken $COVERALLS_TOKEN
 
