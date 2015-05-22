@@ -1,6 +1,7 @@
 # Cisco Micro Services
 
 [![Build Status](https://drone.io/cisco/micro/status.png)](https://drone.io/cisco/micro/lates)
+[![Coverage Status](https://coveralls.io/repos/triforkse/cisco-micro/badge.svg?branch=master)](https://coveralls.io/r/triforkse/cisco-micro?branch=master)
 
 # Installation
 
