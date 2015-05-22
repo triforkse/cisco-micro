@@ -2,11 +2,11 @@ package main
 
 import (
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	"cisco/micro/logger"
 	"cisco/micro/provider"
+  "cisco/micro/util/executil"
 )
 
 func terraformCmd(command string, provider provider.Provider) {
@@ -31,10 +31,7 @@ func terraformCmd(command string, provider provider.Provider) {
 	logger.Debugf("terraform %+v", args)
 
 	// Run Terraform
-	cmd := exec.Command("terraform", args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd := executil.Command("terraform", args...)
 
 	if cmd.Run() != nil {
 		os.Exit(1)

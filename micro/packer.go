@@ -2,7 +2,7 @@ package main
 
 import (
 	"os"
-	"os/exec"
+	"cisco/micro/util/executil"
 
 	"cisco/micro/provider"
 )
@@ -20,10 +20,7 @@ func packerCmd(command string, provider provider.Provider) error {
 		return cwdErr
 	}
 
-	cmd := exec.Command("packer", args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd := executil.Command("packer", args...)
 
 	return cmd.Run()
 }

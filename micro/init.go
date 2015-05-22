@@ -10,7 +10,7 @@ import (
 	"cisco/micro/provider"
   "flag"
   "os"
-  "os/exec"
+  "cisco/micro/util/executil"
 )
 
 const defaultRepo string = "https://github.com/triforkse/microservices-infrastructure.git"
@@ -31,28 +31,27 @@ func initCmd(providerId string, filePath string) {
   // Write Configuration
 
   if _, fileErr := os.Stat(filePath); fileErr != nil {
-      
+    config := provider.New(providerId)
+    config.Populate()
+
+    logger.Debugf("Generating Config: %+v", config)
+
+    data, err := json.Marshal(config)
+
+    if err != nil {
+      log.Fatal("Could not write configuration." + err.Error())
+    }
+
+    var out bytes.Buffer
+    json.Indent(&out, data, "", "  ")
+
+    err = ioutil.WriteFile(filePath, out.Bytes(), 0644)
+
+    if err != nil {
+      log.Fatal("Could not write configuration. " + err.Error())
+    }
+  } else {
   }
-
-	config := provider.New(providerId)
-	config.Populate()
-
-	logger.Debugf("Generating Config: %+v", config)
-
-	data, err := json.Marshal(config)
-
-	if err != nil {
-		log.Fatal("Could not write configuration." + err.Error())
-	}
-
-	var out bytes.Buffer
-	json.Indent(&out, data, "", "  ")
-
-	err = ioutil.WriteFile(filePath, out.Bytes(), 0644)
-
-	if err != nil {
-		log.Fatal("Could not write configuration. " + err.Error())
-	}
 }
 
 
@@ -63,10 +62,7 @@ func clonePackerConfigProject(gitRepo string) {
   _, statErr := os.Stat(defaultLocation)
 
   if statErr != nil {
-    cmd := exec.Command("git", "clone", "--depth=1", gitRepo, defaultLocation)
-    cmd.Stdin = os.Stdin
-    cmd.Stdout = os.Stdout
-    cmd.Stderr = os.Stderr
+    cmd := executil.Command("git", "clone", "--depth=1", gitRepo, defaultLocation)
 
     err := cmd.Run()
     if err != nil {
