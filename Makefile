@@ -4,8 +4,12 @@ action ?= "apply"
 all: build
 
 setup:
+	go get -u github.com/bradfitz/goimports
+	go get -u github.com/golang/lint
 	go get -u golang.org/x/tools/cmd/cover
 	go get -u github.com/golang/lint/golint
+	go get -u github.com/axw/gocov/gocov
+	go get -u github.com/mattn/goveralls
 
 build:
 	go build -o build/micro github.com/triforkse/cisco-micro/micro
@@ -23,6 +27,6 @@ coverage:
 clean:
 	-rm -r ./build
 
-ci: clean build coverage
+ci: clean coverage
 
 .PHONY: build run test ci clean
