@@ -28,6 +28,7 @@ func main() {
 
 	switch command {
 	case "init":
+    logger.Debugf("Is file:")
 		providerId := cmdArgs[1]
 		initCmd(providerId, *filePath)
 	case "apply", "destroy", "plan":

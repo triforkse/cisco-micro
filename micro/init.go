@@ -11,11 +11,14 @@ import (
   "flag"
   "os"
   "cisco/micro/util/executil"
+  "cisco/micro/term"
+  "fmt"
+  "errors"
 )
 
 const defaultRepo string = "https://github.com/triforkse/microservices-infrastructure.git"
 
-func initCmd(providerId string, filePath string) {
+func initCmd(providerId string, filePath string) error {
 
   // Download the Infrastructure files
 
@@ -31,27 +34,43 @@ func initCmd(providerId string, filePath string) {
   // Write Configuration
 
   if _, fileErr := os.Stat(filePath); fileErr != nil {
-    config := provider.New(providerId)
-    config.Populate()
-
-    logger.Debugf("Generating Config: %+v", config)
-
-    data, err := json.Marshal(config)
-
-    if err != nil {
-      log.Fatal("Could not write configuration." + err.Error())
-    }
-
-    var out bytes.Buffer
-    json.Indent(&out, data, "", "  ")
-
-    err = ioutil.WriteFile(filePath, out.Bytes(), 0644)
-
-    if err != nil {
-      log.Fatal("Could not write configuration. " + err.Error())
-    }
+    return generateConfig(filePath, providerId)
   } else {
+    logger.Debugf("Is file:")
+    overwrite, err := term.AskForConfirmation(fmt.Sprintf("Are you sure you want to replace %s?, [yes/any]", filePath))
+    if err != nil {
+      return err
+    }
+    if overwrite == true {
+      return generateConfig(filePath, providerId)
+    }
   }
+
+  return nil
+}
+
+func generateConfig(filePath string, providerId string) error {
+  config := provider.New(providerId)
+  config.Populate()
+
+  logger.Debugf("Generating Config: %+v", config)
+
+  data, err := json.Marshal(config)
+
+  if err != nil {
+    return errors.New("Could not write configuration." + err.Error())
+  }
+
+  var out bytes.Buffer
+  json.Indent(&out, data, "", "  ")
+
+  err = ioutil.WriteFile(filePath, out.Bytes(), 0644)
+
+  if err != nil {
+    return errors.New("Could not write configuration. " + err.Error())
+  }
+
+  return nil
 }
 
 
