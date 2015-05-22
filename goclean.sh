@@ -37,4 +37,4 @@ go tool cover -func build/coverage.cov
 
 # To submit the test coverage result to coveralls.io,
 # use goveralls (https://github.com/mattn/goveralls)
-goveralls -coverprofile=build/coverage.cov -service=drone.io $COVERALLS_TOKEN
+goveralls -coverprofile=build/coverage.cov -service=drone.io -repotoken $COVERALLS_TOKEN
