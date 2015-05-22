@@ -17,6 +17,9 @@ import (
 )
 
 const defaultRepo string = "https://github.com/triforkse/microservices-infrastructure.git"
+const repoBranch string = "feature/terraform"
+const defaultLocation string = ".micro/src"
+
 
 func initCmd(providerId string, filePath string) error {
 
@@ -27,8 +30,13 @@ func initCmd(providerId string, filePath string) error {
 
   logger.Debugf("Git repo: %s", *gitRepo)
 
-  if *downloadRepo == true {
+  _, statErr := os.Stat(defaultLocation)
+  srcExists := statErr == nil
+
+  if !srcExists && *downloadRepo == true {
     clonePackerConfigProject(*gitRepo)
+  } else {
+    logger.Messagef("Cisco MicroService Infra already downloaded.")
   }
 
   // Write Configuration
@@ -53,7 +61,8 @@ func generateConfig(filePath string, providerId string) error {
   config := provider.New(providerId)
   config.Populate()
 
-  logger.Debugf("Generating Config: %+v", config)
+  logger.Messagef("Generating Config File: %s", filePath)
+  logger.Debugf("Generating Config Content: %+v", config)
 
   data, err := json.Marshal(config)
 
@@ -68,6 +77,11 @@ func generateConfig(filePath string, providerId string) error {
 
   if err != nil {
     return errors.New("Could not write configuration. " + err.Error())
+    if err != nil {
+      log.Fatal("Could not write configuration. " + err.Error())
+    }
+  } else {
+    logger.Messagef("Skipping creating config file. It already exists.")
   }
 
   return nil
@@ -76,16 +90,10 @@ func generateConfig(filePath string, providerId string) error {
 
 func clonePackerConfigProject(gitRepo string) {
 
-  defaultLocation := ".micro/src"
+  cmd := executil.Command("git", "clone", "-b", repoBranch, "--single-branch", "--depth=1", gitRepo, defaultLocation)
 
-  _, statErr := os.Stat(defaultLocation)
-
-  if statErr != nil {
-    cmd := executil.Command("git", "clone", "--depth=1", gitRepo, defaultLocation)
-
-    err := cmd.Run()
-    if err != nil {
-      log.Fatal("Error cloning from git. ", err.Error())
-    }
+  err := cmd.Run()
+  if err != nil {
+    log.Fatal("Error cloning from git. ", err.Error())
   }
 }

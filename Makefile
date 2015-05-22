@@ -17,6 +17,9 @@ build:
 run: build
 	./build/micro -debug=true $(args)
 
+run-build:
+	make run args="build"
+
 test:
 	mkdir -p build
 	go test ./...

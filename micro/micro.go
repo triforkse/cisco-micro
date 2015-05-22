@@ -36,7 +36,8 @@ func main() {
 		// TODO: handle read error here, not in the lib
 		terraformCmd(command, config)
 	case "build":
-		err := packerCmd("build", provider.FromFile(*filePath))
+    config := provider.FromFile(*filePath)
+		err := packerCmd(config)
 		if err != nil {
 			log.Fatal("Could not run packer. " + err.Error())
 		}

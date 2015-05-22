@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestGccPrepare(t *testing.T) {
+func TestGCEPrepare(t *testing.T) {
 	target := Config{
 		PrivateKeyId: "test_private_key_id",
 		PrivateKey:   "test_private_key",
@@ -43,7 +43,7 @@ func TestGccPrepare(t *testing.T) {
 	defer os.Remove(target.AccountFile)
 }
 
-func TestTerraformVarsGCC(t *testing.T) {
+func TestTerraformVarsgce(t *testing.T) {
 	provider := new(Config)
 	provider.Region = "MY_REGION"
 	provider.Project = "MY_PROJECT"

@@ -64,12 +64,12 @@ func (p *Config) ConfigId() string {
 }
 
 func (p *Config) ProviderId() string {
-	return "gcc"
+	return "gce"
 }
 
 func (p *Config) Populate() {
 	p.Id = strutil.Random(16)
-	p.Provider = "gcc"
+	p.Provider = "gce"
 	p.Region = "eu-west-1"
 	p.Project = "REPLACE WITH YOUR ACCESS KEY"
 	p.Region = "eu"
@@ -77,4 +77,10 @@ func (p *Config) Populate() {
 	p.PrivateKey = "REPLACE WITH YOUR PRIVATE KEY FROM YOUR ACCOUNT FILE"
 	p.ClientEmail = "REPLACE WITH YOUR CLIENT EMAIL FROM YOUR ACCOUNT FILE"
 	p.ClientId = "REPLACE WITH YOUR CLIENT ID FROM YOUR ACCOUNT FILE"
+}
+
+func (p *Config) PackerVars() map[string]string {
+  return map[string]string {
+
+  }
 }

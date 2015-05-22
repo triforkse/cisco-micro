@@ -7,9 +7,7 @@ import (
 
 	"cisco/micro/provider/aws"
 	"cisco/micro/provider/gce"
-)
 
-import (
 	"log"
 )
 
@@ -20,12 +18,13 @@ type Provider interface {
 	Prepare()
 	Cleanup()
 	TerraformVars() map[string]string
+  PackerVars() map[string]string
 }
 
 func New(providerId string) Provider {
 	providers := map[string]Provider{
 		"aws": new(aws.Config),
-		"gcc": new(gce.Config),
+		"gce": new(gce.Config),
 	}
 
 	provider, known := providers[providerId]
@@ -72,4 +71,12 @@ func FromFile(filePath string) Provider {
 	}
 
 	return provider
+}
+
+func VarList(vars map[string]string) []string {
+  args := []string {}
+  for k, v := range vars {
+    args = append(args, "-var", k+"="+v)
+  }
+  return args
 }

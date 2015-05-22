@@ -1,6 +1,6 @@
 {
-  "id": "my-gcc",
-  "provider": "gcc",
+  "id": "my-gce",
+  "provider": "gce",
   "masters": 1,
   "slaves": 3,
   "properties": {

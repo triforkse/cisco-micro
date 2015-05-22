@@ -25,7 +25,7 @@ Or by running:
 build/micro -provider=aws init
 ```
 
-You can use `aws` or `gcc` as cloud providers. The resulting configuration file
+You can use `aws` or `gce` as cloud providers. The resulting configuration file
 will be stored in `infrastructure.json`
 
 Here is how an example amazon setup could look:
@@ -45,7 +45,7 @@ You can have several cluster with the same cloud provider as long as they
 use different ids.
 
 The `provider` property determines what cloud provider you are going to use,
-available values are `aws` and `gcc`.
+available values are `aws` and `gce`.
 
 The `properties` are provider specific. Look at the example to see what is
 required. For instance for the google cloud provider you will need to download
