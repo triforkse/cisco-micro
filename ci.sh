@@ -9,6 +9,11 @@
 
 set -e
 
+go get -u github.com/bradfitz/goimports
+go get -u github.com/golang/lint/golint
+go get -u golang.org/x/tools/cmd/cover
+go get -u github.com/mattn/goveralls
+
 mkdir -p build
 
 # Automatic checks
