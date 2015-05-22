@@ -42,4 +42,3 @@ func askForInput(question string, answerParserFn answerParser) (string, error) {
 
   return answerParserFn(response), nil
 }
-

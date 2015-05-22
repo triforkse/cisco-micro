@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-
 	"cisco/micro/logger"
 	"cisco/micro/provider"
   "flag"
@@ -19,7 +18,6 @@ import (
 const defaultRepo string = "https://github.com/triforkse/microservices-infrastructure.git"
 const repoBranch string = "feature/terraform"
 const defaultLocation string = ".micro/src"
-
 
 func initCmd(providerId string, filePath string) error {
 
@@ -84,11 +82,8 @@ func generateConfig(filePath string, providerId string) error {
   return nil
 }
 
-
 func clonePackerConfigProject(gitRepo string) {
-
   cmd := executil.Command("git", "clone", "-b", repoBranch, "--single-branch", "--depth=1", gitRepo, defaultLocation)
-
   err := cmd.Run()
   if err != nil {
     log.Fatal("Error cloning from git. ", err.Error())

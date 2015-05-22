@@ -21,8 +21,9 @@ type Config struct {
 	PrivateKey   string `json:"private_key"`
 	ClientEmail  string `json:"client_email"`
 	ClientId     string `json:"client_id"`
+  Zone         string `json:"zone"`
 
-	AccountFile string `json:"-"` // Path to the temp file needed by terraform
+	AccountFile  string `json:"-"` // Path to the temp file needed by terraform
 }
 
 func (p *Config) TerraformVars() map[string]string {
@@ -34,7 +35,7 @@ func (p *Config) TerraformVars() map[string]string {
 	}
 }
 
-func (p *Config) Prepare() {
+func (p *Config) Run(action func() error) error {
 	accountJson, _ := json.Marshal(map[string]string{
 		"private_key_id": p.PrivateKeyId,
 		"private_key":    p.PrivateKey,
@@ -48,15 +49,17 @@ func (p *Config) Prepare() {
 		log.Fatal("Could not write account file at: " + accountFileName)
 	}
 
-	logger.Debugf("Google Account file: %s", accountFileName)
+	logger.Debugf("Google Account File: %s", accountFileName)
 
 	p.AccountFile = accountFileName
-}
 
-func (p *Config) Cleanup() {
+  err = action()
+
 	logger.Debugf("Removing file %v", p.AccountFile)
 	os.Remove(p.AccountFile)
-	// TODO Report error
+	// TODO Report any error from remove
+
+  return err
 }
 
 func (p *Config) ConfigId() string {
@@ -71,8 +74,10 @@ func (p *Config) Populate() {
 	p.Id = strutil.Random(16)
 	p.Provider = "gce"
 	p.Region = "eu-west-1"
-	p.Project = "REPLACE WITH YOUR ACCESS KEY"
 	p.Region = "eu"
+  p.Zone = "us-central1-a"
+  // TODO: Ask for user input for these.
+  p.Project = "REPLACE WITH YOUR ACCESS KEY"
 	p.PrivateKeyId = "REPLACE WITH YOUR PRIVATE KEY ID FROM YOUR ACCOUNT FILE"
 	p.PrivateKey = "REPLACE WITH YOUR PRIVATE KEY FROM YOUR ACCOUNT FILE"
 	p.ClientEmail = "REPLACE WITH YOUR CLIENT EMAIL FROM YOUR ACCOUNT FILE"
@@ -81,6 +86,8 @@ func (p *Config) Populate() {
 
 func (p *Config) PackerVars() map[string]string {
   return map[string]string {
-
+    "gce_creds_file": p.AccountFile,
+    "gce_project_id": p.Project,
+    "gce_zone": p.Zone,
   }
 }

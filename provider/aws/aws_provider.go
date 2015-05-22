@@ -24,9 +24,9 @@ func (p *Config) TerraformVars() map[string]string {
 
 // Terraform
 
-func (p *Config) Prepare() {}
-
-func (p *Config) Cleanup() {}
+func (p *Config) Run(action func() error) error {
+  return action()
+}
 
 func (p *Config) ConfigId() string {
 	return p.Id

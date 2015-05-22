@@ -9,21 +9,27 @@ import (
 
 func packerCmd(config provider.Provider) error {
 
-	// Temporarily change to packer directory
-	pwd, _ := os.Getwd()
-	cwdErr := os.Chdir(".micro/src/img-build/packer")
-	defer os.Chdir(pwd)
+  return config.Run(func() error {
 
-	if cwdErr != nil {
-		return cwdErr
-	}
+    // Temporarily change to packer directory,
+    // since the packer files use relative paths.
 
-  args := []string{"build", "-only=" + config.ProviderId()}
-  args = append(args, provider.VarList(config.PackerVars())...)
-  args = append(args, "all-in-one.json")
+    pwd, _ := os.Getwd()
+    cwdErr := os.Chdir(".micro/src/img-build/packer")
+    defer os.Chdir(pwd)
 
-  logger.Debugf("packer", args)
-	cmd := executil.Command("packer", args...)
+    if cwdErr != nil {
+      return cwdErr
+    }
 
-	return cmd.Run()
+    args := []string{"build", "-only=" + config.ProviderId()}
+    args = append(args, provider.VarList(config.PackerVars())...)
+    args = append(args, "all-in-one.json")
+
+    logger.Debugf("packer", args)
+    cmd := executil.Command("packer", args...)
+
+    return cmd.Run()
+  })
 }
+

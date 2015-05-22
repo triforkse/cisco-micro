@@ -15,8 +15,7 @@ type Provider interface {
 	Populate()
 	ConfigId() string
 	ProviderId() string
-	Prepare()
-	Cleanup()
+	Run(action func() error) error
 	TerraformVars() map[string]string
   PackerVars() map[string]string
 }
