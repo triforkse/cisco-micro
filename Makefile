@@ -8,7 +8,7 @@ setup:
 	go get -u github.com/golang/lint/golint
 
 build:
-	go build -o build/micro cisco/micro/micro
+	go build -o build/micro github.com/triforkse/cisco-micro/micro
 
 run: build
 	./build/micro -config=$(config) -debug=true $(action)
