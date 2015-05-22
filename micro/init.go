@@ -77,9 +77,6 @@ func generateConfig(filePath string, providerId string) error {
 
   if err != nil {
     return errors.New("Could not write configuration. " + err.Error())
-    if err != nil {
-      log.Fatal("Could not write configuration. " + err.Error())
-    }
   } else {
     logger.Messagef("Skipping creating config file. It already exists.")
   }
