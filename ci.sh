@@ -9,6 +9,8 @@
 
 set -e
 
+mkdir -p build
+
 # Automatic checks
 test -z "$(gofmt -l -w .     | tee /dev/stderr)"
 test -z "$(goimports -l -w . | tee /dev/stderr)"
@@ -36,8 +38,7 @@ done
 
 go tool cover -func build/coverage.cov
 
-# To submit the test coverage result to coveralls.io,
-# use goveralls (https://github.com/mattn/goveralls)
+# Submit the test coverage result to coveralls.io
 command -v "goveralls -coverprofile=build/coverage.cov -service=drone.io -repotoken $COVERALLS_TOKEN" >/dev/null 2>&1 \
-  || { echo "goverall not installed" >&2; exit 1; }
+  || { echo "can't push coverage report, 'goverall' is not installed" >&2; }
 

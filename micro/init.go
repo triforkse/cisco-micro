@@ -73,11 +73,11 @@ func generateConfig(filePath string, providerId string) error {
 
 	err = ioutil.WriteFile(filePath, out.Bytes(), 0644)
 
-  if err != nil {
-    return errors.New("Could not write configuration. " + err.Error())
-  } else {
-    logger.Messagef("Skipping creating config file. It already exists.")
-  }
+	if err != nil {
+		return errors.New("Could not write configuration. " + err.Error())
+	} else {
+		logger.Messagef("Skipping creating config file. It already exists.")
+	}
 
 	return nil
 }

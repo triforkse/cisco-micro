@@ -4,9 +4,9 @@ args ?= "apply"
 all: build
 
 setup:
-	go get -u github.com/bradfitz/goimports
-	go get -u github.com/golang/lint
-	go get -u golang.org/x/tools/cmd/cover
+	go get -v github.com/bradfitz/goimports
+	go get -v github.com/golang/lint
+	go get -v golang.org/x/tools/cmd/cover
 
 build:
 	go build -o build/micro ./micro
@@ -25,6 +25,6 @@ clean:
 	-rm -r ./build
 
 ci: setup clean
-	./scripts/ci.sh
+	./ci.sh
 
 .PHONY: setup build run run-build test ci clean
