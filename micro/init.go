@@ -2,11 +2,12 @@ package main
 
 import (
 	"bytes"
-	"cisco/micro/logger"
-	"cisco/micro/provider"
 	"encoding/json"
 	"io/ioutil"
 	"log"
+
+	"github.com/triforkse/cisco-micro/logger"
+	"github.com/triforkse/cisco-micro/provider"
 )
 
 func initCmd(providerId string, filePath string) {

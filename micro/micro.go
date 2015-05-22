@@ -1,12 +1,13 @@
 package main
 
 import (
-	"cisco/micro/logger"
-	"cisco/micro/provider"
 	"flag"
 	"log"
 	"os"
 	"os/exec"
+
+	"github.com/triforkse/cisco-micro/logger"
+	"github.com/triforkse/cisco-micro/provider"
 )
 
 func main() {

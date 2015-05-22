@@ -1,11 +1,12 @@
 package provider
 
 import (
-	"cisco/micro/provider/aws"
-	"cisco/micro/provider/gce"
 	"encoding/json"
 	"io/ioutil"
 	"path/filepath"
+
+	"github.com/triforkse/cisco-micro/provider/aws"
+	"github.com/triforkse/cisco-micro/provider/gce"
 )
 
 import (

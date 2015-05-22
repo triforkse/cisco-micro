@@ -1,11 +1,12 @@
 package main
 
 import (
-	"cisco/micro/logger"
-	"cisco/micro/provider"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/triforkse/cisco-micro/logger"
+	"github.com/triforkse/cisco-micro/provider"
 )
 
 func terraformCmd(command string, provider provider.Provider) {

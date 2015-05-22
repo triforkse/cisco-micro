@@ -1,9 +1,10 @@
 package main
 
 import (
-	"cisco/micro/provider"
 	"os"
 	"os/exec"
+
+	"github.com/triforkse/cisco-micro/provider"
 )
 
 func packerCmd(command string, provider provider.Provider) error {

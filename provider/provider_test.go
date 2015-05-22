@@ -1,9 +1,10 @@
 package provider
 
 import (
-	"cisco/micro/provider/aws"
 	"reflect"
 	"testing"
+
+	"github.com/triforkse/cisco-micro/provider/aws"
 )
 
 func TestReadConfig(t *testing.T) {

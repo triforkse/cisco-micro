@@ -1,13 +1,14 @@
 package gce
 
 import (
-	"cisco/micro/logger"
-	"cisco/micro/util/strutil"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/triforkse/cisco-micro/logger"
+	"github.com/triforkse/cisco-micro/util/strutil"
 )
 
 type Config struct {
