@@ -17,7 +17,7 @@ type Provider interface {
 	ProviderId() string
 	Run(action func() error) error
 	TerraformVars() map[string]string
-  PackerVars() map[string]string
+	PackerVars() map[string]string
 }
 
 func New(providerId string) Provider {
@@ -73,9 +73,9 @@ func FromFile(filePath string) Provider {
 }
 
 func VarList(vars map[string]string) []string {
-  args := []string {}
-  for k, v := range vars {
-    args = append(args, "-var", k+"="+v)
-  }
-  return args
+	args := []string{}
+	for k, v := range vars {
+		args = append(args, "-var", k+"="+v)
+	}
+	return args
 }

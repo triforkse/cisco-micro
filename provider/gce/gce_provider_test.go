@@ -3,47 +3,38 @@ package gce
 import (
 	"encoding/json"
 	"io/ioutil"
-	"os"
 	"reflect"
 	"testing"
 )
 
 func TestGCEPrepare(t *testing.T) {
 	target := Config{
+		Id:           "foo",
+		Provider:     "gce",
 		PrivateKeyId: "test_private_key_id",
 		PrivateKey:   "test_private_key",
 		ClientEmail:  "test_client_email",
 		ClientId:     "test_client_id",
 	}
+	original := accountFileFromConfig(target)
 
-	target.Prepare()
-	bytes, _ := ioutil.ReadFile(target.AccountFile)
+	// Check that the account file can be found.
 
-	type AccountStub struct {
-		PrivateKeyId string `json:"private_key_id"`
-		PrivateKey   string `json:"private_key"`
-		ClientEmail  string `json:"client_email"`
-		ClientId     string `json:"client_id"`
-	}
+	target.Run(func() error {
+		bytes, _ := ioutil.ReadFile(target.AccountFile)
 
-	var accountStub AccountStub
-	json.Unmarshal(bytes, &accountStub)
+		var accountFile AccountFile
+		json.Unmarshal(bytes, &accountFile)
 
-	expected := AccountStub{
-		PrivateKeyId: "test_private_key_id",
-		PrivateKey:   "test_private_key",
-		ClientEmail:  "test_client_email",
-		ClientId:     "test_client_id",
-	}
+		if !reflect.DeepEqual(accountFile, original) {
+			t.Errorf("Expected %#v, got %#v", original, accountFile)
+		}
 
-	if !reflect.DeepEqual(expected, accountStub) {
-		t.Errorf("Expected %v, got %v", expected, accountStub)
-	}
-
-	defer os.Remove(target.AccountFile)
+		return nil
+	})
 }
 
-func TestTerraformVarsgce(t *testing.T) {
+func TestTerraformVarsGCE(t *testing.T) {
 	provider := new(Config)
 	provider.Region = "MY_REGION"
 	provider.Project = "MY_PROJECT"

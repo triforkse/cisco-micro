@@ -1,10 +1,10 @@
 package main
 
 import (
-	"flag"
-	"log"
 	"cisco/micro/logger"
 	"cisco/micro/provider"
+	"flag"
+	"log"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func main() {
 
 	switch command {
 	case "init":
-    logger.Debugf("Is file:")
+		logger.Debugf("Is file:")
 		providerId := cmdArgs[1]
 		initCmd(providerId, *filePath)
 	case "apply", "destroy", "plan":
@@ -36,7 +36,7 @@ func main() {
 		// TODO: handle read error here, not in the lib
 		terraformCmd(command, config)
 	case "build":
-    config := provider.FromFile(*filePath)
+		config := provider.FromFile(*filePath)
 		err := packerCmd(config)
 		if err != nil {
 			log.Fatal("Could not run packer. " + err.Error())

@@ -7,9 +7,6 @@ setup:
 	go get -u github.com/bradfitz/goimports
 	go get -u github.com/golang/lint
 	go get -u golang.org/x/tools/cmd/cover
-	go get -u github.com/golang/lint/golint
-	go get -u github.com/axw/gocov/gocov
-	go get -u github.com/mattn/goveralls
 
 build:
 	go build -o build/micro ./micro
@@ -24,12 +21,10 @@ test:
 	mkdir -p build
 	go test ./...
 
-coverage: build
-	./goclean.sh
-
 clean:
 	-rm -r ./build
 
-ci: setup clean coverage
+ci: setup clean
+	./scripts/ci.sh
 
-.PHONY: build run test ci clean
+.PHONY: setup build run run-build test ci clean

@@ -34,7 +34,7 @@ func Debugf(format string, args ...interface{}) {
 }
 
 func Messagef(format string, args ...interface{}) {
-  fmt.Print(green)
-  fmt.Printf(format, args...)
-  fmt.Println(noColor)
+	fmt.Print(green)
+	fmt.Printf(format, args...)
+	fmt.Println(noColor)
 }

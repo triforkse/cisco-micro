@@ -21,9 +21,9 @@ type Config struct {
 	PrivateKey   string `json:"private_key"`
 	ClientEmail  string `json:"client_email"`
 	ClientId     string `json:"client_id"`
-  Zone         string `json:"zone"`
+	Zone         string `json:"zone"`
 
-	AccountFile  string `json:"-"` // Path to the temp file needed by terraform
+	AccountFile string `json:"-"` // Path to the temp file needed by terraform
 }
 
 func (p *Config) TerraformVars() map[string]string {
@@ -36,12 +36,9 @@ func (p *Config) TerraformVars() map[string]string {
 }
 
 func (p *Config) Run(action func() error) error {
-	accountJson, _ := json.Marshal(map[string]string{
-		"private_key_id": p.PrivateKeyId,
-		"private_key":    p.PrivateKey,
-		"client_email":   p.ClientEmail,
-		"client_id":      p.ClientId,
-	})
+	// TODO: handle error
+	accountFile := accountFileFromConfig(*p)
+	accountJson, _ := json.Marshal(accountFile)
 
 	accountFileName := filepath.Join(os.TempDir(), "account.json")
 	err := ioutil.WriteFile(accountFileName, accountJson, 0600)
@@ -53,13 +50,13 @@ func (p *Config) Run(action func() error) error {
 
 	p.AccountFile = accountFileName
 
-  err = action()
+	err = action()
 
 	logger.Debugf("Removing file %v", p.AccountFile)
 	os.Remove(p.AccountFile)
 	// TODO Report any error from remove
 
-  return err
+	return err
 }
 
 func (p *Config) ConfigId() string {
@@ -75,9 +72,9 @@ func (p *Config) Populate() {
 	p.Provider = "gce"
 	p.Region = "eu-west-1"
 	p.Region = "eu"
-  p.Zone = "us-central1-a"
-  // TODO: Ask for user input for these.
-  p.Project = "REPLACE WITH YOUR ACCESS KEY"
+	p.Zone = "us-central1-a"
+	// TODO: Ask for user input for these.
+	p.Project = "REPLACE WITH YOUR ACCESS KEY"
 	p.PrivateKeyId = "REPLACE WITH YOUR PRIVATE KEY ID FROM YOUR ACCOUNT FILE"
 	p.PrivateKey = "REPLACE WITH YOUR PRIVATE KEY FROM YOUR ACCOUNT FILE"
 	p.ClientEmail = "REPLACE WITH YOUR CLIENT EMAIL FROM YOUR ACCOUNT FILE"
@@ -85,9 +82,9 @@ func (p *Config) Populate() {
 }
 
 func (p *Config) PackerVars() map[string]string {
-  return map[string]string {
-    "gce_creds_file": p.AccountFile,
-    "gce_project_id": p.Project,
-    "gce_zone": p.Zone,
-  }
+	return map[string]string{
+		"gce_creds_file": p.AccountFile,
+		"gce_project_id": p.Project,
+		"gce_zone":       p.Zone,
+	}
 }
