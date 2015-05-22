@@ -12,8 +12,9 @@ import (
 
 func main() {
 	filePath := flag.String("config", "infrastructure.json", "the configuration file")
+	downloadRepo := flag.Bool("clone", false, "should a packer project be downloaded")
+	gitRepo := flag.String("repo", "https://github.com/CiscoCloud/microservices-infrastructure.git", "the reopostory for the infrastructure project")
 	isDebugging := flag.Bool("debug", false, "show debug info")
-	gitRepo := flag.String("gitrepo", "https://github.com/CiscoCloud/microservices-infrastructure.git", "the reopostory for the infrastructure project")
 
 	flag.Parse()
 
@@ -31,12 +32,12 @@ func main() {
 	logger.Debugf("Command: %s", command)
 	logger.Debugf("Config File: %s", *filePath)
 
-	installMsInfra(*gitRepo)
-
 	switch command {
 	case "init":
 		providerId := cmdArgs[1]
-		installMsInfra(*gitRepo)
+		if *downloadRepo == true {
+			clonePackerConfigProject(*gitRepo)
+		}
 		initCmd(providerId, *filePath)
 	case "apply", "destroy", "plan":
 		config := provider.FromFile(*filePath)
@@ -50,9 +51,20 @@ func main() {
 	}
 }
 
-func installMsInfra(gitRepo string) {
+func clonePackerConfigProject(gitRepo string) {
 
-	cmd := exec.Command("git", []string{"clone", "--depth=1", gitRepo, ".micro/src"}...)
+	defaultLocation := ".micro/src"
+
+	dir, stat_err := os.Stat(defaultLocation)
+	if stat_err == nil {
+		logger.Debugf("Name %v", dir.Name())
+		err := os.RemoveAll(defaultLocation)
+		if err != nil {
+			log.Fatal("Error removing " + dir.Name() + " " + err.Error())
+		}
+	}
+
+	cmd := exec.Command("git", []string{"clone", "--depth=1", gitRepo, defaultLocation}...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
