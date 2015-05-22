@@ -8,9 +8,32 @@ import (
 
 	"cisco/micro/logger"
 	"cisco/micro/provider"
+  "flag"
+  "os"
+  "os/exec"
 )
 
+const defaultRepo string = "https://github.com/triforkse/microservices-infrastructure.git"
+
 func initCmd(providerId string, filePath string) {
+
+  // Download the Infrastructure files
+
+  downloadRepo := flag.Bool("clone", true, "should a packer project be downloaded")
+  gitRepo := flag.String("repo", defaultRepo, "the reopostory for the infrastructure project")
+
+  logger.Debugf("Git repo: %s", *gitRepo)
+
+  if *downloadRepo == true {
+    clonePackerConfigProject(*gitRepo)
+  }
+
+  // Write Configuration
+
+  if _, fileErr := os.Stat(filePath); fileErr != nil {
+      
+  }
+
 	config := provider.New(providerId)
 	config.Populate()
 
@@ -30,4 +53,24 @@ func initCmd(providerId string, filePath string) {
 	if err != nil {
 		log.Fatal("Could not write configuration. " + err.Error())
 	}
+}
+
+
+func clonePackerConfigProject(gitRepo string) {
+
+  defaultLocation := ".micro/src"
+
+  _, statErr := os.Stat(defaultLocation)
+
+  if statErr != nil {
+    cmd := exec.Command("git", "clone", "--depth=1", gitRepo, defaultLocation)
+    cmd.Stdin = os.Stdin
+    cmd.Stdout = os.Stdout
+    cmd.Stderr = os.Stderr
+
+    err := cmd.Run()
+    if err != nil {
+      log.Fatal("Error cloning from git. ", err.Error())
+    }
+  }
 }

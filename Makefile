@@ -1,5 +1,5 @@
 config ?= "dev.json"
-action ?= "apply"
+args ?= "apply"
 
 all: build
 
@@ -15,7 +15,7 @@ build:
 	go build -o build/micro ./micro
 
 run: build
-	./build/micro -config=$(config) -debug=true $(action)
+	./build/micro -debug=true $(args)
 
 test:
 	mkdir -p build
