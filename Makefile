@@ -23,6 +23,6 @@ coverage:
 clean:
 	-rm -r ./build
 
-ci: clean coverage
+ci: clean build coverage
 
 .PHONY: build run test ci clean

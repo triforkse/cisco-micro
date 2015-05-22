@@ -35,11 +35,17 @@ func main() {
 	switch command {
 	case "init":
 		providerId := cmdArgs[1]
+		installMsInfra(*gitRepo)
 		initCmd(providerId, *filePath)
 	case "apply", "destroy", "plan":
 		config := provider.FromFile(*filePath)
 		// TODO: handle read error here, not in the lib
 		terraformCmd(command, config)
+	case "build":
+		err := packerCmd("build", provider.FromFile(*filePath))
+		if err != nil {
+			log.Fatal("Could not run packer. " + err.Error())
+		}
 	}
 }
 
