@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/triforkse/cisco-micro/logger"
-	"github.com/triforkse/cisco-micro/provider"
+	"cisco/micro/logger"
+	"cisco/micro/provider"
 )
 
 func main() {

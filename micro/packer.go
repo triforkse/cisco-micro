@@ -4,7 +4,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/triforkse/cisco-micro/provider"
+	"cisco/micro/provider"
 )
 
 func packerCmd(command string, provider provider.Provider) error {

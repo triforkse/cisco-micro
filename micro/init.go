@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/triforkse/cisco-micro/logger"
-	"github.com/triforkse/cisco-micro/provider"
+	"cisco/micro/logger"
+	"cisco/micro/provider"
 )
 
 func initCmd(providerId string, filePath string) {

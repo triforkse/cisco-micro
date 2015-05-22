@@ -1,7 +1,7 @@
 package aws
 
 import (
-	"github.com/triforkse/cisco-micro/util/strutil"
+	"cisco/micro/util/strutil"
 )
 
 type Config struct {

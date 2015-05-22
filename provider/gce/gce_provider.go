@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/triforkse/cisco-micro/logger"
-	"github.com/triforkse/cisco-micro/util/strutil"
+	"cisco/micro/logger"
+	"cisco/micro/util/strutil"
 )
 
 type Config struct {

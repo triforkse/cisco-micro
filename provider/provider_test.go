@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/triforkse/cisco-micro/provider/aws"
+	"cisco/micro/provider/aws"
 )
 
 func TestReadConfig(t *testing.T) {

@@ -5,8 +5,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/triforkse/cisco-micro/logger"
-	"github.com/triforkse/cisco-micro/provider"
+	"cisco/micro/logger"
+	"cisco/micro/provider"
 )
 
 func terraformCmd(command string, provider provider.Provider) {

@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/triforkse/cisco-micro/provider/aws"
-	"github.com/triforkse/cisco-micro/provider/gce"
+	"cisco/micro/provider/aws"
+	"cisco/micro/provider/gce"
 )
 
 import (

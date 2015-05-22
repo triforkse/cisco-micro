@@ -12,7 +12,7 @@ setup:
 	go get -u github.com/mattn/goveralls
 
 build:
-	go build -o build/micro github.com/triforkse/cisco-micro/micro
+	go build -o build/micro ./micro
 
 run: build
 	./build/micro -config=$(config) -debug=true $(action)
@@ -21,12 +21,12 @@ test:
 	mkdir -p build
 	go test ./...
 
-coverage:
+coverage: build
 	./goclean.sh
 
 clean:
 	-rm -r ./build
 
-ci: clean coverage
+ci: setup clean coverage
 
 .PHONY: build run test ci clean
