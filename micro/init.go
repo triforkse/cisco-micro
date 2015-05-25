@@ -43,7 +43,9 @@ func initCmd(providerId string, filePath string) error {
 		return generateConfig(filePath, providerId)
 	} else {
 		logger.Debugf("Is file:")
-		overwrite, err := term.AskForConfirmation(fmt.Sprintf("Are you sure you want to replace %s?, [yes/any]", filePath))
+		overwrite, err := term.AskForConfirmation(fmt.Sprintf("Are you sure you want to replace %s?, [yes/no]",
+                        filePath), term.AskForInput)
+
 		if err != nil {
 			return err
 		}
