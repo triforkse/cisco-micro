@@ -1,14 +1,13 @@
-package main
+package terraform
 
 import (
 	"path/filepath"
-
 	"cisco/micro/logger"
 	"cisco/micro/provider"
 	"cisco/micro/util/executil"
 )
 
-func terraformCmd(command string, config provider.Provider) {
+func TerraformCmd(command string, config provider.Provider, configFileLocation string) {
 
 	config.Run(func() error {
 		args := []string{command}
@@ -21,7 +20,7 @@ func terraformCmd(command string, config provider.Provider) {
 		args = append(args, "-var", "deployment_id="+config.ConfigId())
 
 		// Tell it what template to use based on the provider.
-		args = append(args, filepath.Join("templates", config.ProviderId()))
+		args = append(args, filepath.Join(configFileLocation, config.ProviderId()))
 
 		logger.Debugf("terraform %+v", args)
 

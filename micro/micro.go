@@ -3,9 +3,13 @@ package main
 import (
 	"cisco/micro/logger"
 	"cisco/micro/provider"
+        "cisco/micro/terraform"
 	"flag"
 	"log"
+        "path/filepath"
 )
+
+const defaultLocation string = ".micro/src"
 
 func main() {
 	filePath := flag.String("config", "infrastructure.json", "the configuration file")
@@ -30,11 +34,11 @@ func main() {
 	case "init":
 		logger.Debugf("Is file:")
 		providerId := cmdArgs[1]
-		initCmd(providerId, *filePath)
+		initCmd(providerId, *filePath, defaultLocation)
 	case "apply", "destroy", "plan":
 		config := provider.FromFile(*filePath)
 		// TODO: handle read error here, not in the lib
-		terraformCmd(command, config)
+		terraform.TerraformCmd(command, config, filepath.Join(defaultLocation, "terraform"))
 	case "build":
 		config := provider.FromFile(*filePath)
 		err := packerCmd(config)

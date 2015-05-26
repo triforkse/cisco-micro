@@ -17,9 +17,8 @@ import (
 
 const defaultRepo string = "https://github.com/triforkse/microservices-infrastructure.git"
 const repoBranch string = "feature/terraform"
-const defaultLocation string = ".micro/src"
 
-func initCmd(providerId string, filePath string) error {
+func initCmd(providerId string, filePath string, defaultLocation string) error {
 
 	// Download the Infrastructure files
 
@@ -32,7 +31,7 @@ func initCmd(providerId string, filePath string) error {
 	srcExists := statErr == nil
 
 	if !srcExists && *downloadRepo == true {
-		clonePackerConfigProject(*gitRepo)
+		clonePackerConfigProject(*gitRepo, defaultLocation)
 	} else {
 		logger.Messagef("Cisco MicroService Infra already downloaded.")
 	}
@@ -77,14 +76,12 @@ func generateConfig(filePath string, providerId string) error {
 
 	if err != nil {
 		return errors.New("Could not write configuration. " + err.Error())
-	} else {
-		logger.Messagef("Skipping creating config file. It already exists.")
 	}
 
 	return nil
 }
 
-func clonePackerConfigProject(gitRepo string) {
+func clonePackerConfigProject(gitRepo string, defaultLocation string) {
 	cmd := executil.Command("git", "clone", "-b", repoBranch, "--single-branch", "--depth=1", gitRepo, defaultLocation)
 	err := cmd.Run()
 	if err != nil {

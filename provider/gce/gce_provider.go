@@ -23,6 +23,17 @@ type Config struct {
 	ClientId     string `json:"client_id"`
 	Zone         string `json:"zone"`
 
+        ControlCount string `json:"control_count"`
+        ControlType  string `json:"control_type"`
+        Datacenter   string `json:"datacenter"`
+        LongName     string `json:"long_name"`
+        NetworkIpv4  string `json:"network_ipv4"`
+        ShortName    string `json:"short_name"`
+        WorkerCount  string `json:"worker_count"`
+        WorkerType   string `json:"worker_type"`
+        SshUserName  string `json:"ssh_username"`
+        SshKey       string `json:"ssh_key"`
+
 	AccountFile string `json:"-"` // Path to the temp file needed by terraform
 }
 
@@ -32,6 +43,18 @@ func (p *Config) TerraformVars() map[string]string {
 		"region":       p.Region,
 		"nodes":        "1",
 		"account_file": p.AccountFile,
+
+                "control_count": p.ControlCount,
+                "control_type" : p.ControlType,
+                "datacenter"   : p.Datacenter,
+                "long_name"    : p.LongName,
+                "network_ipv4" : p.NetworkIpv4,
+                "short_name"   : p.ShortName,
+                "worker_count" : p.WorkerCount,
+                "worker_type"  : p.WorkerType,
+                "ssh.username" : p.SshUserName,
+                "ssh.key"      : p.SshKey,
+
 	}
 }
 
@@ -71,7 +94,6 @@ func (p *Config) Populate() {
 	p.Id = strutil.Random(16)
 	p.Provider = "gce"
 	p.Region = "eu-west-1"
-	p.Region = "eu"
 	p.Zone = "us-central1-a"
 	// TODO: Ask for user input for these.
 	p.Project = "REPLACE WITH YOUR ACCESS KEY"
@@ -79,6 +101,18 @@ func (p *Config) Populate() {
 	p.PrivateKey = "REPLACE WITH YOUR PRIVATE KEY FROM YOUR ACCOUNT FILE"
 	p.ClientEmail = "REPLACE WITH YOUR CLIENT EMAIL FROM YOUR ACCOUNT FILE"
 	p.ClientId = "REPLACE WITH YOUR CLIENT ID FROM YOUR ACCOUNT FILE"
+
+        p.ControlCount = "3"
+        p.ControlType = "n1-standard-1"
+        p.Datacenter = "gce"
+        p.LongName = "microservices-infrastructure"
+        p.NetworkIpv4 = "10.0.0.0/16"
+        p.ShortName = "mi"
+        p.WorkerCount = "1"
+        p.WorkerType = "n1-highcpu-2"
+        p.SshKey = "REPLACE WITH THE PUBLIC SSH KEY YOU WANT TO USE"
+        p.SshUserName = "REPLACE WITH THE SSH USERNAME YOU WANT TO USE"
+
 }
 
 func (p *Config) PackerVars() map[string]string {
