@@ -16,23 +16,23 @@ type Config struct {
 	Id           string `json:"id"`
 	Provider     string `json:"provider"`
 	Project      string `json:"project"`
-	Region       string `json:"region"`
-	PrivateKeyId string `json:"private_key_id"`
-	PrivateKey   string `json:"private_key"`
-	ClientEmail  string `json:"client_email"`
-	ClientId     string `json:"client_id"`
+	Region       string `json:"region" complement:"true"`
+	PrivateKeyId string `json:"private_key_id" complement:"true"`
+	PrivateKey   string `json:"private_key" complement:"true"`
+	ClientEmail  string `json:"client_email" complement:"true"`
+	ClientId     string `json:"client_id" complement:"true"`
 	Zone         string `json:"zone"`
 
-        ControlCount string `json:"control_count"`
-        ControlType  string `json:"control_type"`
-        Datacenter   string `json:"datacenter"`
-        LongName     string `json:"long_name"`
-        NetworkIpv4  string `json:"network_ipv4"`
-        ShortName    string `json:"short_name"`
-        WorkerCount  string `json:"worker_count"`
-        WorkerType   string `json:"worker_type"`
-        SshUserName  string `json:"ssh_username"`
-        SshKey       string `json:"ssh_key"`
+        ControlCount string `json:"control_count" complement:"true"`
+        ControlType  string `json:"control_type" complement:"true"`
+        Datacenter   string `json:"datacenter" complement:"true"`
+        LongName     string `json:"long_name" complement:"true"`
+        NetworkIpv4  string `json:"network_ipv4" complement:"true"`
+        ShortName    string `json:"short_name" complement:"true"`
+        WorkerCount  string `json:"worker_count" complement:"true"`
+        WorkerType   string `json:"worker_type" complement:"true"`
+        SshUserName  string `json:"ssh_username" complement:"true"`
+        SshKey       string `json:"ssh_key" complement:"true"`
 
 	AccountFile string `json:"-"` // Path to the temp file needed by terraform
 }

@@ -9,6 +9,9 @@ import (
 	"cisco/micro/provider/gce"
 
 	"log"
+        "reflect"
+        "fmt"
+        "errors"
 )
 
 type Provider interface {
@@ -52,6 +55,29 @@ func readFile(filePath string) (providerId string, bytes []byte, err error) {
 	}
 
 	return
+}
+
+func ComplementVars(provider Provider, fieldName string, question string, complement func(string, string) (string, error)) (string, error) {
+        config := reflect.TypeOf(provider).Elem()
+        field, known := config.FieldByName(fieldName)
+
+        if !known {
+                return "", errors.New(fmt.Sprintf("The struct has no field with name '%s'", fieldName))
+        }
+
+        configValue := reflect.ValueOf(provider)
+        configField := configValue.Elem().FieldByName(fieldName)
+        defaultValue := configField.String()
+
+        if field.Tag.Get("complement") == "true" {
+                complementedValue, err := complement(question, defaultValue)
+                if err != nil {
+                        return "", err
+                }
+                return complementedValue, nil
+        }
+
+        return defaultValue, nil
 }
 
 func FromFile(filePath string) Provider {

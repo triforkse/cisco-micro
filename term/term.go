@@ -28,12 +28,9 @@ func yesNoParser(response string) string {
 	return ""
 }
 
-func freeParser(response string) string {
-	return response
-}
-
 func AskForConfirmation(question string, askForInput InputAsker) (bool, error) {
-	answer, err := askForInput(question, yesNoParser)
+	answer, err := askForInput(question)
+        answer = yesNoParser(answer)
 	if err == nil {
 		if answer == "yes" {
 			return true, nil
@@ -47,5 +44,11 @@ func AskForConfirmation(question string, askForInput InputAsker) (bool, error) {
 }
 
 func AskForAnswer(question string, defaultAnswer string, askForInputDefaultAnswer InputAskerWithDefault) (string, error) {
-	return askForInputDefaultAnswer(question, defaultAnswer, freeParser)
+	response, err :=  askForInputDefaultAnswer(question, defaultAnswer)
+
+        if err != nil {
+                return "", err
+        }
+
+        return response, nil
 }

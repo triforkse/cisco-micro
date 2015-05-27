@@ -24,7 +24,7 @@ func TestYesNoParserExpectingNoForAllNoLikeAnswers(t *testing.T) {
 }
 
 func TestAskForConfirmationExpectingTrueWhenAnswerIsYes(t *testing.T) {
-        answer, err := AskForConfirmation("Test question", func(question string, answer AnswerParser) (string, error) {
+        answer, err := AskForConfirmation("Test question", func(question string) (string, error) {
                 return "yes", nil
         })
 
@@ -38,7 +38,7 @@ func TestAskForConfirmationExpectingTrueWhenAnswerIsYes(t *testing.T) {
 }
 
 func TestAskForConfirmationExpectingFalseWhenAnswerIsNo(t *testing.T) {
-        answer, err := AskForConfirmation("Test question", func(question string, answer AnswerParser) (string, error) {
+        answer, err := AskForConfirmation("Test question", func(question string) (string, error) {
                 return "no", nil
         })
 
@@ -52,7 +52,7 @@ func TestAskForConfirmationExpectingFalseWhenAnswerIsNo(t *testing.T) {
 }
 
 func TestAskForConfirmationExpectingFalseOnError(t *testing.T) {
-        answer, err := AskForConfirmation("Test question", func(question string, answer AnswerParser) (string, error) {
+        answer, err := AskForConfirmation("Test question", func(question string) (string, error) {
                 return "", errors.New("")
         })
 
