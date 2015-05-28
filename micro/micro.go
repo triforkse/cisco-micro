@@ -1,49 +1,19 @@
 package main
 
 import (
-	"cisco/micro/logger"
-	"cisco/micro/provider"
-        "cisco/micro/terraform"
-	"flag"
-	"log"
-        "path/filepath"
+        "os"
+        "cisco/micro/logger"
+        "cisco/micro/config"
+        "cisco/micro/provider"
 )
 
 const defaultLocation string = ".micro/src"
 
 func main() {
-	filePath := flag.String("config", "infrastructure.json", "the configuration file")
-	isDebugging := flag.Bool("debug", false, "show debug info")
+        configs, args := config.MatchConfigs(os.Args[1:])
 
-	flag.Parse()
-
-	logger.EnableDebug(*isDebugging)
-
-	var command string
-	cmdArgs := flag.Args()
-	if len(cmdArgs) > 0 {
-		command = cmdArgs[0]
-	} else {
-		command = "apply"
-	}
-
-	logger.Debugf("Command: %s", command)
-	logger.Debugf("Config File: %s", *filePath)
-
-	switch command {
-	case "init":
-		logger.Debugf("Is file:")
-		providerId := cmdArgs[1]
-		initCmd(providerId, *filePath, defaultLocation)
-	case "apply", "destroy", "plan":
-		config := provider.FromFile(*filePath)
-		// TODO: handle read error here, not in the lib
-		terraform.TerraformCmd(command, config, filepath.Join(defaultLocation, "terraform"))
-	case "build":
-		config := provider.FromFile(*filePath)
-		err := packerCmd(config)
-		if err != nil {
-			log.Fatal("Could not run packer. " + err.Error())
-		}
-	}
+        for _, cfg := range configs {
+                logger.Debugf("Apply to cluster %s using configuration file: %s", cfg.Config.Id,cfg.Path)
+                provider.Dispatch(cfg, args)
+        }
 }
