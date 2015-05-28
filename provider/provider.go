@@ -1,8 +1,8 @@
 package provider
 
 import (
-        "os"
         "fmt"
+        "os"
         "cisco/micro/config"
 )
 
@@ -19,6 +19,16 @@ func NewProvider(dispatchTable map[string]CommandFunction) *Provider {
                 dispatchTable: dispatchTable}
 }
 
+var providers = map[string]*Provider {
+        "aws": NewProvider(getAwsDispatchTable()),
+        "gce": NewProvider(getGceDispatchTable()),
+
+}
+
+func Dispatch(cfg config.Config, args[]string) int{
+        return providers[cfg.Config.Provider].dispatch(cfg, args)
+}
+
 func (provider *Provider) dispatch(cfg config.Config, args []string) int {
 
         dispatchTable := provider.dispatchTable
@@ -31,4 +41,6 @@ func (provider *Provider) dispatch(cfg config.Config, args []string) int {
         fmt.Fprintf(os.Stderr, `Unknown command.\n`)
         return 1
 }
+
+
 
