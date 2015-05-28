@@ -1,9 +1,0 @@
-{
-  "id": "test-aws-123",
-  "provider": "aws",
-  "properties": {
-    "secret_key": "af4YY1yeXeQkByTYUYFtBBLUjL4YXXFTHaFBvaDb",
-    "access_key": "7AIAIOEIEEEAZQ4AIE67",
-    "region": "eu-west-1"
-  }
-}
