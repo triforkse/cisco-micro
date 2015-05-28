@@ -65,38 +65,4 @@ func TestAskForConfirmationExpectingFalseOnError(t *testing.T) {
         }
 }
 
-func TestParseCommandLineArguments(t *testing.T) {
-        result := parseCmdLineVariables([]string{"-var k1=v1", "-var k2=v2", "-notvar k3=v3"})
-
-        if value, _ := result["k1"]; value != "v1" {
-                t.Errorf("Expected k1 to have value v1, got %s", value)
-        }
-
-        if value, _ := result["k2"]; value != "v2" {
-                t.Errorf("Expected k1 to have value v2, got %s", value)
-        }
-
-        if _, known := result["k3"]; known {
-                t.Error("Did not expect k3 to be known")
-        }
-}
-
-func TestExtractValue(t *testing.T) {
-        suppliedVars := map[string]string{"key1":"value1", "key2": "value2"}
-
-        result := extractValue(suppliedVars, "key1", func(answer string) string { return "complementedValue"})
-        if result != "value1" {
-                t.Errorf("Expected key1 to be value1 , got %v", result)
-        }
-
-        result = extractValue(suppliedVars, "key2", func(answer string) string { return "complementedValue"})
-        if result != "value2"{
-                t.Errorf("Expected key2 to be value2 , got %v", result)
-        }
-
-        result = extractValue(suppliedVars, "key3", func(answer string) string { return "complementedValue"})
-        if result != "complementedValue"{
-                t.Errorf("Expected key3 to be complementedValue , got %v", result)
-        }
-}
 
