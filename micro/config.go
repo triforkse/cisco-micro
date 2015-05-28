@@ -94,7 +94,9 @@ func allFilePathsInDirectory(dirPath string) []string {
 }
 
 // impure; file I/O
-func readConfigs(directory string) []Config {
+//
+// Read all configs inside given directory path
+func ReadConfigs(directory string) []Config {
 	paths := allConfigPathsInDirectory(directory)
 	return readConfigsWithPaths(paths)
 }
