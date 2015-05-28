@@ -18,3 +18,20 @@ func TestFilterOutNonJsonPaths(t *testing.T) {
 		t.Error("expected abc.json and my.json")
 	}
 }
+
+func TestParseSampleConfig(t *testing.T) {
+	sample := []byte(`{ "id": "123", "provider": "aws" }`)
+
+	config, err := parseJsonBytes(sample)
+	if err != nil {
+		t.Error("Failed to parse JSON")
+	}
+
+	if config.Id != "123" {
+		t.Error(`Expected id = "123"`)
+	}
+
+	if config.Provider != "aws" {
+		t.Error(`Expected provider = "aws"`)
+	}
+}

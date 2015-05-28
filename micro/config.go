@@ -8,21 +8,21 @@ import (
 )
 
 type ConfigVars struct {
-	id       string
-	provider string
+	Id       string
+	Provider string
 }
 
 type Config struct {
-	config ConfigVars
-	path   string
+	Config ConfigVars
+	Path   string
 }
 
 // pure function
 func parseJsonBytes(bytes []byte) (*ConfigVars, error) {
 
 	var err error
-	var config ConfigVars
 
+	config := ConfigVars{}
 	err = json.Unmarshal(bytes, &config)
 	if err != nil {
 		return nil, err
@@ -47,6 +47,18 @@ func validConfigPaths(paths []string) []string {
 	}
 
 	return configPaths
+}
+
+func readConfigsWithPaths(paths []string) []Config {
+	var configs = []Config{}
+
+	for _, path := range paths {
+		if vars, err := readVars(path); err == nil {
+			configs = append(configs, Config{*vars, path})
+		}
+	}
+
+	return configs
 }
 
 // impure; file I/O
@@ -83,15 +95,6 @@ func allFilePathsInDirectory(dirPath string) []string {
 
 // impure; file I/O
 func readConfigs(directory string) []Config {
-	var configs = []Config{}
-	var paths = []string{}
-
-	paths = allConfigPathsInDirectory(directory)
-	for _, path := range paths {
-		if vars, err := readVars(path); err == nil {
-			configs = append(configs, Config{*vars, path})
-		}
-	}
-
-	return configs
+	paths := allConfigPathsInDirectory(directory)
+	return readConfigsWithPaths(paths)
 }
