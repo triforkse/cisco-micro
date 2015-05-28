@@ -3,11 +3,12 @@ package provider
 import (
         "os"
         "fmt"
+        "cisco/micro/config"
 )
 
 
 
-type CommandFunction func(string,[]string)int
+type CommandFunction func(config.Config,[]string)int
 
 type Provider struct {
         dispatchTable map[string]CommandFunction
@@ -18,13 +19,13 @@ func NewProvider(dispatchTable map[string]CommandFunction) *Provider {
                 dispatchTable: dispatchTable}
 }
 
-func (provider *Provider) dispatch(cluster string, args []string) int {
+func (provider *Provider) dispatch(cfg config.Config, args []string) int {
 
         dispatchTable := provider.dispatchTable
         id := args[0]
 
         if commandFn, ok := dispatchTable[id]; ok {
-                return commandFn(cluster, args)
+                return commandFn(cfg, args)
         }
 
         fmt.Fprintf(os.Stderr, `Unknown command.\n`)

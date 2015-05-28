@@ -5,6 +5,7 @@ package provider
 import (
         "testing"
         "reflect"
+        "cisco/micro/config"
 )
 
 const SUCCESSFUL_EXIT_CODE int = 0
@@ -24,13 +25,13 @@ func TestDispatchCommand(t *testing.T) {
                 "cmd-2": cmd2Mock.mockedFunction,
         }
 
-        result := NewProvider(dispatch).dispatch("cluster1", args)
+        result := NewProvider(dispatch).dispatch(config.Config{Path: "SomePath"}, args)
 
         if !cmd1Mock.called {
                 t.Error("must dispatch to cmd function")
         }
-        if cmd1Mock.cluster != "cluster1" {
-                t.Error("must pass cluster name")
+        if cmd1Mock.cfg.Path != "SomePath" {
+                t.Error("must pass config with path to config file")
         }
         if !reflect.DeepEqual(cmd1Mock.args,args) {
                 t.Error("must pass cluster args")
@@ -51,7 +52,7 @@ func TestDispatchUnknownCommand(t *testing.T) {
                 "cmd-1": cmd1Mock.mockedFunction,
         }
 
-        result := NewProvider(dispatch).dispatch("cluster1", args)
+        result := NewProvider(dispatch).dispatch(config.Config{Path: "SomePath"}, args)
 
         if cmd1Mock.called {
                 t.Error("must not dispatch to cmd function")
@@ -64,15 +65,15 @@ func TestDispatchUnknownCommand(t *testing.T) {
 type MockCommand struct {
         called bool
         args []string
-        cluster string
+        cfg config.Config
         mockedReturnValue int
 }
 
 
-func (self *MockCommand) mockedFunction(cluster string, args []string) int {
+func (self *MockCommand) mockedFunction(cfg config.Config, args []string) int {
         self.called = true
         self.args = args
-        self.cluster = cluster
+        self.cfg = cfg
         return self.mockedReturnValue
 }
 
