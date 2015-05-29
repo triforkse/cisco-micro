@@ -28,7 +28,7 @@ func Dispatch(cfg config.Config, args[]string) int {
         if provider, ok := providers[cfg.Config.Provider]; ok {
                 return provider.dispatch(cfg, args)
         } else {
-                fmt.Fprintf(os.Stderr, `No arguments given.`)
+                fmt.Fprintf(os.Stderr, "No arguments given.\n")
                 return 1
         }
 
@@ -39,7 +39,7 @@ func (provider *Provider) dispatch(cfg config.Config, args []string) int {
         dispatchTable := provider.dispatchTable
 
         if (len(args) == 0){
-                fmt.Fprintf(os.Stderr, `No arguments given.`)
+                fmt.Fprintf(os.Stderr, "No arguments given.\n")
                 return 1
         }
 
@@ -49,7 +49,7 @@ func (provider *Provider) dispatch(cfg config.Config, args []string) int {
                 return commandFn(cfg, args)
         }
 
-        fmt.Fprintf(os.Stderr, `Unknown command.`)
+        fmt.Fprintf(os.Stderr, "Unknown command.\n")
         return 1
 }
 
