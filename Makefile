@@ -17,7 +17,7 @@ test:
 	go test ./...
 
 clean:
-	-rm -r ./build
+	-rm -rf ./build
 
 ci: clean
 	./ci.sh
