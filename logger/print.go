@@ -2,7 +2,7 @@ package logger
 
 import (
 	"fmt"
-        "os"
+	"os"
 )
 
 var isDebugging bool = false
@@ -43,6 +43,6 @@ func Messagef(format string, args ...interface{}) {
 
 func Errorf(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, red)
-	fmt.Fprintf(os.Stderr,format, args...)
-	fmt.Fprintf(os.Stderr,noColor)
+	fmt.Fprintf(os.Stderr, format, args...)
+	fmt.Fprintln(os.Stderr, noColor)
 }
