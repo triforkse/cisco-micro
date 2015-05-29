@@ -1,107 +1,57 @@
 package provider
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"path/filepath"
-
-	"cisco/micro/provider/aws"
-	"cisco/micro/provider/gce"
-
-	"log"
-        "reflect"
         "fmt"
-        "errors"
+        "os"
+        "cisco/micro/config"
 )
 
-type Provider interface {
-	Populate()
-	ConfigId() string
-	ProviderId() string
-	Run(action func() error) error
-	TerraformVars() map[string]string
-	PackerVars() map[string]string
+
+type CommandFunction func(config.Config, []string) int
+
+type Provider struct {
+        dispatchTable map[string]CommandFunction
 }
 
-func New(providerId string) Provider {
-	providers := map[string]Provider{
-		"aws": new(aws.Config),
-		"gce": new(gce.Config),
-	}
-
-	provider, known := providers[providerId]
-
-	if !known {
-		log.Fatal("Unknown provider: '" + providerId + "'")
-	}
-
-	return provider
+func NewProvider(dispatchTable map[string]CommandFunction) *Provider {
+        return &Provider{
+                dispatchTable: dispatchTable}
 }
 
-func readFile(filePath string) (providerId string, bytes []byte, err error) {
+var providers = map[string]*Provider{
+        "aws": NewProvider(getAwsDispatchTable()),
+        "gce": NewProvider(getGceDispatchTable()),
 
-	// Determine what provider we are using,
-	// and parse the configuration accordingly.
-
-	bytes, _ = ioutil.ReadFile(filePath)
-
-	var config struct {
-		Provider string
-	}
-	err = json.Unmarshal(bytes, &config)
-
-	if err == nil {
-		providerId = config.Provider
-	}
-
-	return
 }
 
-func ComplementVars(provider Provider, fieldName string, question string, complement func(string, string) (string, error)) (string, error) {
-        config := reflect.TypeOf(provider).Elem()
-        field, known := config.FieldByName(fieldName)
-
-        if !known {
-                return "", errors.New(fmt.Sprintf("The struct has no field with name '%s'", fieldName))
+func Dispatch(cfg config.Config, args[]string) int {
+        if provider, ok := providers[cfg.Config.Provider]; ok {
+                return provider.dispatch(cfg, args)
+        } else {
+                fmt.Fprintf(os.Stderr, `No arguments given.`)
+                return 1
         }
 
-        configValue := reflect.ValueOf(provider)
-        configField := configValue.Elem().FieldByName(fieldName)
-        defaultValue := configField.String()
+}
 
-        if field.Tag.Get("complement") == "true" {
-                complementedValue, err := complement(question, defaultValue)
-                if err != nil {
-                        return "", err
-                }
-                return complementedValue, nil
+func (provider *Provider) dispatch(cfg config.Config, args []string) int {
+
+        dispatchTable := provider.dispatchTable
+
+        if (len(args) == 0){
+                fmt.Fprintf(os.Stderr, `No arguments given.`)
+                return 1
         }
 
-        return defaultValue, nil
+        id := args[0]
+
+        if commandFn, ok := dispatchTable[id]; ok {
+                return commandFn(cfg, args)
+        }
+
+        fmt.Fprintf(os.Stderr, `Unknown command.`)
+        return 1
 }
 
-func FromFile(filePath string) Provider {
 
-	providerId, bytes, err := readFile(filePath)
-	if err != nil {
-		absPath, _ := filepath.Abs(filePath)
-		log.Fatal("Failed to read configuration file: " + absPath)
-	}
 
-	provider := New(providerId)
-
-	err = json.Unmarshal(bytes, provider)
-	if err != nil {
-		log.Fatal("Invalid configuration. " + err.Error())
-	}
-
-	return provider
-}
-
-func VarList(vars map[string]string) []string {
-	args := []string{}
-	for k, v := range vars {
-		args = append(args, "-var", k+"="+v)
-	}
-	return args
-}

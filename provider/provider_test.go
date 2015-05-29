@@ -1,74 +1,84 @@
+
 package provider
 
-import (
-        "reflect"
-        "testing"
 
-        "cisco/micro/provider/aws"
-        "cisco/micro/provider/gce"
+import (
+        "testing"
+        "reflect"
+        "cisco/micro/config"
 )
 
-func TestReadConfig(t *testing.T) {
-        config := FromFile("testdata/aws_test.json")
+const SUCCESSFUL_EXIT_CODE int = 0
+const FAILURE_EXIT_CODE int = 1
 
-        if config.ProviderId() != "aws" {
-                t.Error("expected provider 'aws'")
+
+
+func TestDispatchCommand(t *testing.T) {
+        args := []string{"cmd-1"}
+
+
+        cmd1Mock := NewMockedCommand("cmd-1", SUCCESSFUL_EXIT_CODE)
+        cmd2Mock := NewMockedCommand("cmd-2", SUCCESSFUL_EXIT_CODE)
+
+        dispatch := map[string]CommandFunction {
+                "cmd-1": cmd1Mock.mockedFunction,
+                "cmd-2": cmd2Mock.mockedFunction,
         }
 
-        if config.ConfigId() != "test-aws-123" {
-                t.Error("expected another 'id' attribute")
+        result := NewProvider(dispatch).dispatch(config.Config{Path: "SomePath"}, args)
+
+        if !cmd1Mock.called {
+                t.Error("must dispatch to cmd function")
         }
-
-        // Make sure we produce the correct type.
-
-        var expectedType aws.Config
-        if reflect.TypeOf(config) != reflect.TypeOf(&expectedType) {
-                t.Error("the wrong config type was produced")
+        if cmd1Mock.cfg.Path != "SomePath" {
+                t.Error("must pass config with path to config file")
+        }
+        if !reflect.DeepEqual(cmd1Mock.args,args) {
+                t.Error("must pass cluster args")
+        }
+        if result != SUCCESSFUL_EXIT_CODE {
+                t.Error("must return exit code")
         }
 }
 
-func TestComplementVars(t *testing.T) {
-        config := &gce.Config{Id: "test-id", ControlCount: "1", Datacenter: "gce"}
 
-        //Return existing value
-        complementedValue, err := ComplementVars(config, "Id", "question", func(q string, d string) (string, error) { return "another-id", nil})
-        if err != nil {
-                t.Errorf("Expected test-id got %v", err)
-        }
-        if complementedValue != "test-id" {
-                t.Errorf("Expected test-id got %v", complementedValue)
-        }
+func TestDispatchUnknownCommand(t *testing.T) {
+        args := []string{"unknown"}
 
-        //Return default value
-        complementedValue, err = ComplementVars(config, "ControlCount", "question", func(q string, d string) (string, error) { return d, nil})
-        if err != nil {
-                t.Errorf("Expected 1 got %v", err)
-        }
-        if complementedValue != "1" {
-                t.Errorf("Expected 1 got %v", complementedValue)
+
+        cmd1Mock := NewMockedCommand("cmd-1", SUCCESSFUL_EXIT_CODE)
+
+        dispatch := map[string]CommandFunction {
+                "cmd-1": cmd1Mock.mockedFunction,
         }
 
-        //Return changed value
-        complementedValue, err = ComplementVars(config, "Datacenter", "question", func(q string, d string) (string, error) { return "aws", nil})
-        if err != nil {
-                t.Errorf("Expected aws got %v", err)
-        }
-        if complementedValue != "aws" {
-                t.Errorf("Expected aws got %v", complementedValue)
-        }
+        result := NewProvider(dispatch).dispatch(config.Config{Path: "SomePath"}, args)
 
-        //Return supplied value
-        complementedValue, err = ComplementVars(config, "PrivateKey", "question", func(q string, d string) (string, error) { return "test-key", nil})
-        if err != nil {
-                t.Errorf("Expected test-key got %v", err)
+        if cmd1Mock.called {
+                t.Error("must not dispatch to cmd function")
         }
-        if complementedValue != "test-key" {
-                t.Errorf("Expected test-key got %v", complementedValue)
+        if result != FAILURE_EXIT_CODE {
+                t.Error("must return exit code")
         }
+}
 
-        //Should return error for non existing fields
-        complementedValue, err = ComplementVars(config, "non_existing", "question", func(q string, d string) (string, error) { return "test-key", nil})
-        if err == nil {
-                t.Errorf("Expected error got %v", complementedValue)
-        }
+type MockCommand struct {
+        called bool
+        args []string
+        cfg config.Config
+        mockedReturnValue int
+}
+
+
+func (self *MockCommand) mockedFunction(cfg config.Config, args []string) int {
+        self.called = true
+        self.args = args
+        self.cfg = cfg
+        return self.mockedReturnValue
+}
+
+
+func NewMockedCommand(id string, exitCode int) *MockCommand{
+        mockCommandFunction := &MockCommand{mockedReturnValue: exitCode}
+        return mockCommandFunction
 }
