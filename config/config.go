@@ -124,11 +124,11 @@ func MatchConfigs(args []string) (matchingConfigs []Config, remainingArgs []stri
 	//
 	//  Parse command line arguments
 	//
-	flagSet := flag.NewFlagSet("Config Loader", flag.ExitOnError)
+	flagSet := flag.NewFlagSet("Config Loader", flag.ContinueOnError)
 	flagSet.StringVar(&configDir, "config-dir", "./", `The root directory to look for config files in. Defaults to "./"`)
 	flagSet.StringVar(&clusterId, "id", "", "The cluster id to apply the command on")
 	flagSet.BoolVar(&allClusterIds, "all", false, "Apply command to all cluster ids")
-	flagSet.Parse(args)
+	flagSet.Parse(args[1:])
 
 	//
 	//  Determine which predicate to use
@@ -156,5 +156,5 @@ func MatchConfigs(args []string) (matchingConfigs []Config, remainingArgs []stri
 		log.Fatal("No matching configurations")
 	}
 
-	return configs, flagSet.Args()
+	return configs, append([]string{args[0]}, flagSet.Args()...)
 }

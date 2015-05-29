@@ -52,7 +52,7 @@ func TestGatherVariablesFromCommandLineArgsWithRequiredSupplied(t *testing.T) {
                 return "complementedValue", nil
         }}
 
-        result := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{"-var key1=value1"})
+        result,_ := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{"-var", "key1=value1"})
 
         if value, known := result["key1"]; !known || value != "value1" {
                 t.Errorf("Expected value1 got '%v'", value)
@@ -64,7 +64,7 @@ func TestGatherVariablesFromCommandLineArgsWithRequiredAndAdditionalSupplied(t *
                 return "complementedValue", nil
         }}
 
-        result := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{"-var key1=value1", "-var key2=value2"})
+        result,_ := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{"-var", "key1=value1", "-var", "key2=value2"})
 
         if value, known := result["key1"]; !known || value != "value1" {
                 t.Errorf("Expected value1 got '%v'", value)
@@ -80,7 +80,7 @@ func TestGatherVariablesFromCommandLineArgssWithRequiredMissing(t *testing.T) {
                 return "complementedValue", nil
         }}
 
-        result := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{"-var key2=value2"})
+        result,_ := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{"-var", "key2=value2"})
 
         if value, known := result["key1"]; !known || value != "complementedValue" {
                 t.Errorf("Expected complementedValue got '%v'", value)
@@ -97,7 +97,7 @@ func TestGatherVariablesFromCommandLineArgsWithNonKnownOptions(t *testing.T) {
                 return "complementedValue", nil
         }}
 
-        result := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{"-var key1=value1", "-unknown test:test"})
+        result, _ := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{"-var", "key1=value1", "-unknown test:test"})
 
         if value, known := result["key1"]; !known || value != "value1" {
                 t.Errorf("Expected value1 got '%v'", value)
@@ -109,7 +109,7 @@ func TestGatherVariablesFromCommandLineArgsWithWrongFormat(t *testing.T) {
                 return "complementedValue", nil
         }}
 
-        result := variableParser.GatherVariablesFromCommandLineArgs([]string{}, []string{"-var key1value1"})
+        result, _ := variableParser.GatherVariablesFromCommandLineArgs([]string{}, []string{"-var", "key1value1"})
 
         if _, known := result["key1valu1"]; known {
                 t.Errorf("Expected to be unknown")
@@ -133,7 +133,7 @@ func TestGatherVariablesFromCommandLineArgsAskRetriesUntilValidAnswer(t *testing
         }
         variableParser := VariableParser{askFunction: askFunction}
 
-        result := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{})
+        result, _ := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{})
 
         if value, _ := result["key1"]; value != "complementedValue" {
                 t.Errorf("Expected 'complementedValue', got '%s'", value)

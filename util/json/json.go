@@ -1,4 +1,4 @@
-package config
+package json
 import (
         "io/ioutil"
         "errors"

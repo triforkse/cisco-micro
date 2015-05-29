@@ -2,65 +2,65 @@ package terraform
 
 import (
         "path/filepath"
-        "cisco/micro/logger"
-        "cisco/micro/provider"
-        "cisco/micro/util/executil"
-        "reflect"
-        "cisco/micro/term"
-        "log"
+
+
+
         "fmt"
+        "cisco/micro/config"
 )
 
-func TerraformCmd(command string, config provider.Provider, configFileLocation string) {
-
-        config.Run(func() error {
-                args := []string{command}
-
-                // Determine if we have an old tfstate file we need to load.
-                args = append(args, "-state="+filepath.Join(".micro", config.ConfigId()+".tfstate"))
-
-                // Pass in the arguments
-                terraformVars := gatherVars(config, term.AskForInputDefaultAnswer)
-                args = append(args, provider.VarList(terraformVars)...)
-                args = append(args, "-var", "deployment_id="+config.ConfigId())
-
-                // Tell it what template to use based on the provider.
-                args = append(args, filepath.Join(configFileLocation, config.ProviderId()))
-
-                logger.Debugf("terraform %+v", args)
-
-                // Run Terraform
-                cmd := executil.Command("terraform", args...)
-
-                err := cmd.Run()
-
-                logger.PrintTable("Cluster Properties", map[string]string{
-                        "Type": config.ProviderId(),
-                        "ID":   config.ConfigId(),
-                })
-
-                return err
-        })
+type CommandContext struct {
+        Command string
+        Vars map[string]string
+        Flags map[string]string
 }
 
-func gatherVars(config provider.Provider, askFn term.InputAskerWithDefault) map[string]string {
-        vars := config.TerraformVars()
-        numberOfElements := reflect.TypeOf(config).Elem().NumField()
-        for i := 0; i < numberOfElements; i++ {
+type TerraformContext struct {
+        Context CommandContext
+        Config config.Config
+}
 
-                field := reflect.TypeOf(config).Elem().FieldByIndex([]int{i})
-                configName := field.Tag.Get("json")
+func (cmd *CommandContext) ToList() []string {
+        args := []string{cmd.Command}
+        args = append(args, createVariableList(cmd.Vars)...)
+        args = append(args, createFlagsList(cmd.Flags)...)
 
-                question := fmt.Sprintf("Enter a new value for property '%s' to override the default", configName)
-                value, err := provider.ComplementVars(config, field.Name, question, askFn)
+        return args
+}
 
-                if err != nil {
-                        log.Fatalf("Could not retrive value for '%s' due to error '%v'", field.Name, err)
-                }
+func computeTerraformStatePath(config config.Config) string {
+        return filepath.Join(".micro", config.Config.Id +".tfstate")
+}
 
-                vars[configName] = value
+func computeTerraformConfigPath(config config.Config) string {
+      // return filepath.Join(configFileLocation, config.Config.Id()))
+        return "TODO"
+}
+
+func (cmd *TerraformContext) ToList() []string {
+        cmd.Context.Flags["state"] = computeTerraformStatePath(cmd.Config)
+        commandList := append(cmd.Context.ToList(), computeTerraformConfigPath(cmd.Config))
+
+        return append([]string{"echo", "terraform"}, commandList...)
+}
+
+func createVariableList(vars map[string]string) []string {
+        var addedArgs []string
+        for key, value := range vars {
+                addedArgs = append(addedArgs, "-var", fmt.Sprintf("%s=%s", key, value))
         }
+        return addedArgs
+}
 
-        return vars
+func createFlagsList(flags map[string]string) []string {
+        var addedFlags []string
+        for key, value := range flags {
+                if len(value) == 0 {
+                        addedFlags = append(addedFlags, fmt.Sprintf("-%s", key))
+                } else {
+                        addedFlags = append(addedFlags, fmt.Sprintf("-%s=%s", key, value))
+                }
+        }
+        return addedFlags
 }
 
