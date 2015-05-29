@@ -21,6 +21,11 @@ type Config struct {
         Path   string
 }
 
+
+func (v *ConfigVars) AreValid() bool {
+        return v.Id != "" &&  v.Provider != ""
+}
+
 // pure function
 func parseJsonBytes(bytes []byte) (*ConfigVars, error) {
 
@@ -57,7 +62,7 @@ func readConfigsWithPaths(paths []string) []Config {
         var configs = []Config{}
 
         for _, path := range paths {
-                if vars, err := readVars(path); err == nil {
+                if vars, err := readVars(path); err == nil && vars.AreValid() {
                         configs = append(configs, Config{*vars, path})
                 }
         }
@@ -118,26 +123,31 @@ func filterConfigs(filterFn func(Config) bool, configs []Config) []Config {
 // Returns the list of matching configurations and the remaining list of command line arguments)
 func MatchConfigs(args []string) (matchingConfigs []Config, remainingArgs []string) {
         var clusterIds string
-        var allClusterIds bool
+        var acceptAllClusters bool
         var configDir string
         var pred func(Config) bool
 
         //
         //  Parse command line arguments
         //
-        flagSet := flag.NewFlagSet("Config Loader", flag.ExitOnError)
+
+        flagSet := flag.NewFlagSet("Config Loader", flag.ContinueOnError)
+        flagSet.SetOutput(ioutil.Discard)
         flagSet.StringVar(&configDir, "config-dir", "./", `The root directory to look for config files in. Defaults to "./"`)
         flagSet.StringVar(&clusterIds, "id", "", "The cluster id to apply the command on")
-        flagSet.BoolVar(&allClusterIds, "all", false, "Apply command to all cluster ids")
+        flagSet.BoolVar(&acceptAllClusters, "all", false, "Apply command to all cluster ids")
         flagSet.Parse(args)
 
         //
         //  Determine which predicate to use
         //
-        if !allClusterIds {
-
+        if acceptAllClusters {
+                pred = func(config Config) bool {
+                        return true
+                }
+        } else {
                 if len(clusterIds) == 0 {
-                        logger.Errorf("Missing cluster id")
+                        logger.Errorf("Missing cluster id(s) or all flag. See help for more infos.")
                 } else {
                         clusters := strings.Split(clusterIds, ",")
                         pred = func(config Config) bool {
@@ -150,15 +160,14 @@ func MatchConfigs(args []string) (matchingConfigs []Config, remainingArgs []stri
                                 return false
                         }
                 }
-        } else {
-                pred = nil
         }
 
         //
         //  Read configs
         //
-        configs := ReadConfigs(configDir)
+        configs := make([]Config,0)
         if pred != nil {
+                configs = ReadConfigs(configDir)
                 configs = filterConfigs(pred, configs)
         }
 

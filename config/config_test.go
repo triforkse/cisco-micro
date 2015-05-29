@@ -50,7 +50,7 @@ func TestParseMatchConfigsForAllCluster(t *testing.T) {
         }
 
         if len(configs) != 4 {
-                t.Error(`Expected four configs`)
+                t.Errorf("Expected four configs. But got %d", len(configs))
         }
 }
 
@@ -103,6 +103,21 @@ func TestParseMatchConfigsServeralClusters(t *testing.T) {
 
 func TestParseMatchConfigsNoMatchingClusters(t *testing.T) {
         args := []string{`-id=aws-not-found`}
+
+        configs, remainingArgs := MatchConfigs(args)
+
+        if len(remainingArgs) != 0 {
+                t.Error("Command line argument should be removed")
+        }
+
+        if len(configs) != 0 {
+                t.Error(`Expected no configs`)
+        }
+
+}
+
+func TestParseMatchConfigsNoIdOrAllCliParameter(t *testing.T) {
+        args := []string{`-debug`}
 
         configs, remainingArgs := MatchConfigs(args)
 
