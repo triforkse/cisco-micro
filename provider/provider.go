@@ -46,7 +46,7 @@ func (provider *Provider) dispatch(cfg config.Config, args []string) int {
         id := args[0]
 
         if commandFn, ok := dispatchTable[id]; ok {
-                return commandFn(cfg, args)
+                return commandFn(cfg, args[1:])
         }
 
         fmt.Fprintf(os.Stderr, "Unknown command.\n")

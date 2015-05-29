@@ -14,7 +14,7 @@ const FAILURE_EXIT_CODE int = 1
 
 
 func TestDispatchCommand(t *testing.T) {
-        args := []string{"cmd-1"}
+        args := []string{"cmd-1","args"}
 
 
         cmd1Mock := NewMockedCommand("cmd-1", SUCCESSFUL_EXIT_CODE)
@@ -33,7 +33,7 @@ func TestDispatchCommand(t *testing.T) {
         if cmd1Mock.cfg.Path != "SomePath" {
                 t.Error("must pass config with path to config file")
         }
-        if !reflect.DeepEqual(cmd1Mock.args,args) {
+        if !reflect.DeepEqual(cmd1Mock.args,args[1:]) {
                 t.Error("must pass cluster args")
         }
         if result != SUCCESSFUL_EXIT_CODE {
