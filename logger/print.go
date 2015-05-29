@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+        "os"
 )
 
 var isDebugging bool = false
@@ -10,6 +11,7 @@ func EnableDebug(debug bool) {
 	isDebugging = debug
 }
 
+var red string = "\033[0;31m"
 var green string = "\033[0;32m"
 var blue string = "\033[0;34m"
 var purple string = "\033[0;35m"
@@ -37,4 +39,10 @@ func Messagef(format string, args ...interface{}) {
 	fmt.Print(green)
 	fmt.Printf(format, args...)
 	fmt.Println(noColor)
+}
+
+func Errorf(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, red)
+	fmt.Fprintf(os.Stderr,format, args...)
+	fmt.Fprintf(os.Stderr,noColor)
 }
