@@ -17,7 +17,6 @@ func main() {
         }
 
         for _, cfg := range configs {
-                logger.Debugf("Apply to cluster %s using configuration file: %s", cfg.Config.Id, cfg.Path)
                 provider.Dispatch(cfg, args)
         }
 }

@@ -5,7 +5,7 @@ import (
         "cisco/micro/config"
 )
 
-func GceBuild(cfg config.Config, args []string) int{
+func GceBuild(cfg []config.Config, args []string) int{
         fmt.Println("GCE build")
         return 0
 }

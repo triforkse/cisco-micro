@@ -132,7 +132,7 @@ func filterConfigs(filterFn func(Config) bool, configs []Config) []Config {
 
 // Determines which configs the user wants loaded depending on the command line arguments passed in
 // Returns the list of matching configurations and the remaining list of command line arguments)
-func MatchConfigs(args []string) (matchingConfigs []Config, remainingArgs []string) {
+func MatchConfigs(args []string) (matchingConfigs map[string][]Config, remainingArgs []string) {
         var pred func(Config) bool
 
         //
@@ -167,10 +167,23 @@ func MatchConfigs(args []string) (matchingConfigs []Config, remainingArgs []stri
         //
         //  Read configs
         //
-        configs := make([]Config,0)
+        configs := make(map[string][]Config)
+
         if pred != nil {
-                configs = ReadConfigs(cli.ConfigDir)
-                configs = filterConfigs(pred, configs)
+                configsUngrouped := ReadConfigs(cli.ConfigDir)
+                configsUngrouped = filterConfigs(pred, configsUngrouped)
+
+                for _, config := range configsUngrouped {
+
+                        clusters, ok:= configs[config.Config.Provider]
+
+                        if !ok {
+                                clusters = make([]Config,0)
+                        }
+
+                        configs[config.Config.Provider] = append(clusters, config)
+
+                }
         }
 
         return configs, args

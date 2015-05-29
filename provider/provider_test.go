@@ -25,12 +25,13 @@ func TestDispatchCommand(t *testing.T) {
                 "cmd-2": cmd2Mock.mockedFunction,
         }
 
-        result := NewProvider(dispatch).dispatch(config.Config{Path: "SomePath"}, args)
+
+        result := NewProvider(dispatch).dispatch([]config.Config{config.Config{Path: "SomePath"}}, args)
 
         if !cmd1Mock.called {
                 t.Error("must dispatch to cmd function")
         }
-        if cmd1Mock.cfg.Path != "SomePath" {
+        if cmd1Mock.cfgs[0].Path != "SomePath" {
                 t.Error("must pass config with path to config file")
         }
         if !reflect.DeepEqual(cmd1Mock.args,args[1:]) {
@@ -52,7 +53,7 @@ func TestDispatchUnknownCommand(t *testing.T) {
                 "cmd-1": cmd1Mock.mockedFunction,
         }
 
-        result := NewProvider(dispatch).dispatch(config.Config{Path: "SomePath"}, args)
+        result := NewProvider(dispatch).dispatch([]config.Config{config.Config{Path: "SomePath"}}, args)
 
         if cmd1Mock.called {
                 t.Error("must not dispatch to cmd function")
@@ -65,15 +66,15 @@ func TestDispatchUnknownCommand(t *testing.T) {
 type MockCommand struct {
         called bool
         args []string
-        cfg config.Config
+        cfgs []config.Config
         mockedReturnValue int
 }
 
 
-func (self *MockCommand) mockedFunction(cfg config.Config, args []string) int {
+func (self *MockCommand) mockedFunction(cfgs []config.Config, args []string) int {
         self.called = true
         self.args = args
-        self.cfg = cfg
+        self.cfgs = cfgs
         return self.mockedReturnValue
 }
 

@@ -5,7 +5,7 @@ import (
         "cisco/micro/config"
 )
 
-func AwsBuild(cfg config.Config, args []string) int{
+func AwsBuild(cfg []config.Config, args []string) int{
         fmt.Println("AWS build")
         return 0
 }

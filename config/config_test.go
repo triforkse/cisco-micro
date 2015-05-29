@@ -49,9 +49,14 @@ func TestParseMatchConfigsForAllCluster(t *testing.T) {
                 t.Error("Wrong command line argument removed")
         }
 
-        if len(configs) != 4 {
-                t.Errorf("Expected four configs. But got %d", len(configs))
+        if len(configs["aws"]) != 2 {
+                t.Errorf("Expected two config for aws. But got %d", len(configs["aws"]))
         }
+
+        if len(configs["gce"]) != 2 {
+                t.Errorf("Expected two config for gce. But got %d", len(configs["aws"]))
+        }
+
 }
 
 func TestParseMatchConfigsOneCluster(t *testing.T) {
@@ -63,19 +68,24 @@ func TestParseMatchConfigsOneCluster(t *testing.T) {
                 t.Error("Command line argument should be removed")
         }
 
-        if len(configs) != 1 {
-                t.Errorf("Expected one configs. But got %d", len(configs))
+
+        if _, ok := configs["aws"]; !ok {
+                t.Errorf("Expected aws key", configs["aws"])
         }
 
-        if configs[0].Config.Id != "aws-2" {
+        if len(configs["aws"]) != 1 {
+                t.Errorf("Expected one config for aws. But got %d", len(configs["aws"]))
+        }
+
+        if configs["aws"][0].Config.Id != "aws-2" {
                 t.Error("Expected another config id")
         }
 
-        if configs[0].Config.Provider != "aws" {
+        if configs["aws"][0].Config.Provider != "aws" {
                 t.Error("Expected another config provider")
         }
 
-        if configs[0].Path != "testdata/aws-cluster2.json" {
+        if configs["aws"][0].Path != "testdata/aws-cluster2.json" {
                 t.Error("Expected another config path")
         }
 }
@@ -89,15 +99,20 @@ func TestParseMatchConfigsServeralClusters(t *testing.T) {
                 t.Error("Command line argument should be removed")
         }
 
-        if len(configs) != 2 {
-                t.Errorf("Expected two configs. But got %d", len(configs))
+        if _, ok :=configs["aws"]; !ok {
+                t.Errorf("Expected aws key", configs)
         }
 
-        if !(configs[0].Config.Id == "aws-2" || configs[0].Config.Id == "gce-1") {
-                t.Error("Expected another config id")
+        if _, ok :=configs["gce"]; !ok {
+                t.Errorf("Expected gce key", configs)
         }
-        if !(configs[1].Config.Id == "aws-2" || configs[1].Config.Id == "gce-1") {
-                t.Error("Expected another config id")
+
+
+        if !(configs["aws"][0].Config.Id == "aws-2") {
+                t.Error("Expected another aws config id")
+        }
+        if !(configs["gce"][0].Config.Id == "gce-1") {
+                t.Error("Expected another gce config id")
         }
 }
 
