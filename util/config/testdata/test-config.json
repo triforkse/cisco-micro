@@ -1,0 +1,7 @@
+{
+        "id": "test-aws-123",
+        "provider": "aws",
+        "secret_key": "TEST SECRET KEY",
+        "access_key": "TEST ACCESS KEY",
+        "region": "eu-west-1"
+}

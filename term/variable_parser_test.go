@@ -3,6 +3,7 @@ package term
 import (
         "testing"
         "errors"
+        "encoding/json"
 )
 
 func TestParseCommandLineVariables(t *testing.T) {
@@ -46,24 +47,24 @@ func TestExtractValue(t *testing.T) {
         }
 }
 
-func TestGatherVariablesWithRequiredSupplied(t *testing.T) {
+func TestGatherVariablesFromCommandLineArgsWithRequiredSupplied(t *testing.T) {
         variableParser := VariableParser{askFunction: func(question string) (string, error) {
                 return "complementedValue", nil
         }}
 
-        result := variableParser.GatherVariables([]string{"key1"}, []string{"-var key1=value1"})
+        result := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{"-var key1=value1"})
 
         if value, known := result["key1"]; !known || value != "value1" {
                 t.Errorf("Expected value1 got '%v'", value)
         }
 }
 
-func TestGatherVariablesWithRequiredAndAdditionalSupplied(t *testing.T) {
+func TestGatherVariablesFromCommandLineArgsWithRequiredAndAdditionalSupplied(t *testing.T) {
         variableParser := VariableParser{askFunction: func(question string) (string, error) {
                 return "complementedValue", nil
         }}
 
-        result := variableParser.GatherVariables([]string{"key1"}, []string{"-var key1=value1", "-var key2=value2"})
+        result := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{"-var key1=value1", "-var key2=value2"})
 
         if value, known := result["key1"]; !known || value != "value1" {
                 t.Errorf("Expected value1 got '%v'", value)
@@ -74,12 +75,12 @@ func TestGatherVariablesWithRequiredAndAdditionalSupplied(t *testing.T) {
         }
 }
 
-func TestGatherVariablesWithRequiredMissing(t *testing.T) {
+func TestGatherVariablesFromCommandLineArgssWithRequiredMissing(t *testing.T) {
         variableParser := VariableParser{askFunction: func(question string) (string, error) {
                 return "complementedValue", nil
         }}
 
-        result := variableParser.GatherVariables([]string{"key1"}, []string{"-var key2=value2"})
+        result := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{"-var key2=value2"})
 
         if value, known := result["key1"]; !known || value != "complementedValue" {
                 t.Errorf("Expected complementedValue got '%v'", value)
@@ -91,31 +92,31 @@ func TestGatherVariablesWithRequiredMissing(t *testing.T) {
 }
 
 
-func TestGatherVariablesWithNonKnownOptions(t *testing.T) {
+func TestGatherVariablesFromCommandLineArgsWithNonKnownOptions(t *testing.T) {
         variableParser := VariableParser{askFunction: func(question string) (string, error) {
                 return "complementedValue", nil
         }}
 
-        result := variableParser.GatherVariables([]string{"key1"}, []string{"-var key1=value1", "-unknown test:test"})
+        result := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{"-var key1=value1", "-unknown test:test"})
 
         if value, known := result["key1"]; !known || value != "value1" {
                 t.Errorf("Expected value1 got '%v'", value)
         }
 }
 
-func TestGatherVariablesWithWrongFormat(t *testing.T) {
+func TestGatherVariablesFromCommandLineArgsWithWrongFormat(t *testing.T) {
         variableParser := VariableParser{askFunction: func(question string) (string, error) {
                 return "complementedValue", nil
         }}
 
-        result := variableParser.GatherVariables([]string{}, []string{"-var key1value1"})
+        result := variableParser.GatherVariablesFromCommandLineArgs([]string{}, []string{"-var key1value1"})
 
         if _, known := result["key1valu1"]; known {
                 t.Errorf("Expected to be unknown")
         }
 }
 
-func TestGatherVariablesAskRetriesUntilValidAnswer(t *testing.T) {
+func TestGatherVariablesFromCommandLineArgsAskRetriesUntilValidAnswer(t *testing.T) {
         callCount := 0
         askFunction := func(question string) (string, error) {
                 switch callCount {
@@ -132,7 +133,7 @@ func TestGatherVariablesAskRetriesUntilValidAnswer(t *testing.T) {
         }
         variableParser := VariableParser{askFunction: askFunction}
 
-        result := variableParser.GatherVariables([]string{"key1"}, []string{})
+        result := variableParser.GatherVariablesFromCommandLineArgs([]string{"key1"}, []string{})
 
         if value, _ := result["key1"]; value != "complementedValue" {
                 t.Errorf("Expected 'complementedValue', got '%s'", value)
@@ -140,6 +141,45 @@ func TestGatherVariablesAskRetriesUntilValidAnswer(t *testing.T) {
 
         if callCount != 3 {
                 t.Errorf("Expected askFunctionMock to have been called 3 times but was called %d times", callCount)
+        }
+}
+
+func TestGatherVariablesFromFile(t *testing.T) {
+        filePath := "testdata/test-vars.json"
+        variableParser := VariableParser{askFunction:func(s string) (string, error) {return "complementedValue", nil}}
+
+        result := variableParser.GatherVariablesFromFile([]string{"key1", "key3"}, filePath)
+
+        if value, known := result["key1"]; !known || value != "value1" {
+                t.Errorf("Expected value1 got '%v'", value)
+        }
+
+        if value, known := result["key2"]; !known || value != "value2" {
+                t.Errorf("Expected value2 got '%v'", value)
+        }
+
+        if value, known := result["key3"]; !known || value != "complementedValue" {
+                t.Errorf("Expected complementedValue got '%v'", value)
+        }
+
+}
+
+func TestWriteVariablesToFile(t *testing.T) {
+        var output map[string]string
+        writeToFileMock := func(filePath string, variables []byte) error {
+                json.Unmarshal(variables, &output)
+                return nil
+        }
+        variableParser := VariableParser{writeToFile: writeToFileMock}
+
+        variableParser.WriteVariablesToFile(map[string]string{"key1":"value1", "key2":"value2"}, "path/to/file")
+
+        if value, known := output["key1"]; !known || value != "value1" {
+                t.Errorf("Expected value1 got '%v'", value)
+        }
+
+        if value, known := output["key2"]; !known || value != "value2" {
+                t.Errorf("Expected value2 got '%v'", value)
         }
 }
 

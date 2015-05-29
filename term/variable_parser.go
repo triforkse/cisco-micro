@@ -2,17 +2,37 @@ package term
 import (
         "fmt"
         "strings"
+        "cisco/micro/util/config"
 )
 
 
 type VariableParser struct {
         askFunction func(string) (string, error)
+        writeToFile func(string, []byte) error
 }
 
-func (self *VariableParser) GatherVariables(requiredVars []string, commandLineArgs []string) map[string]string {
+func (self *VariableParser) GatherVariablesFromFile(requiredVars []string, filePath string) map[string]string {
+        suppliedVars, err := config.ParseJsonToMap(filePath)
+        if err != nil {
+                panic(fmt.Sprintf("Could not parse json file due to: %v", err))
+        }
+        return self.complementWithRequiredVariables(suppliedVars, requiredVars)
+}
+
+func (self *VariableParser) GatherVariablesFromCommandLineArgs(requiredVars []string, commandLineArgs []string) map[string]string {
         suppliedVars := self.parseCmdLineVariables(commandLineArgs)
-        complementedVars := self.complementWithRequiredVariables(suppliedVars, requiredVars)
-        return complementedVars
+        return self.complementWithRequiredVariables(suppliedVars, requiredVars)
+}
+
+func (self *VariableParser) WriteVariablesToFile(variables map[string]string, filePath string) {
+        if jsonData, err := config.WriteToJson(variables); err == nil {
+                err = self.writeToFile(filePath, jsonData)
+                if err != nil {
+                        panic(fmt.Sprintf("Could not write json to file due to: %v", err))
+                }
+        } else {
+                panic(fmt.Sprintf("Could not write json to file due to: %v", err))
+        }
 }
 
 func (self *VariableParser) parseCmdLineVariables(args []string) map[string]string {
