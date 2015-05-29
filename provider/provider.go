@@ -28,7 +28,7 @@ func Dispatch(cfg config.Config, args[]string) int {
         if provider, ok := providers[cfg.Config.Provider]; ok {
                 return provider.dispatch(cfg, args)
         } else {
-                fmt.Fprintf(os.Stderr, "No arguments given.\n")
+                fmt.Fprintf(os.Stderr, "Unsupported provider: \"%s\" found in \"%s\"\n", cfg.Config.Provider, cfg.Path)
                 return 1
         }
 
