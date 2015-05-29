@@ -3,12 +3,12 @@ package config
 import (
         "cisco/micro/logger"
         "encoding/json"
-        "flag"
         "io/ioutil"
         "log"
         "os"
         "path/filepath"
         "strings"
+        "github.com/jessevdk/go-flags"
 )
 
 type ConfigVars struct {
@@ -39,6 +39,14 @@ func parseJsonBytes(bytes []byte) (*ConfigVars, error) {
 
         return &config, nil
 }
+
+type CliOptions struct {
+        ConfigDir string `short:"d" long:"config-dir" default:"./" description:"Search for configuration files in this directory: defaults to ./"`
+        ClusterIds []string `short:"i" long:"id" description:"Comma separated list (no space) of cluster ids"`
+        AcceptAllClusters bool `short:"a" long:"all"  description:"Applies command to all cluster found in config-dir"`
+
+}
+
 
 // pure function
 func isConfigPath(path string) bool {
@@ -119,40 +127,34 @@ func filterConfigs(filterFn func(Config) bool, configs []Config) []Config {
         return filtered
 }
 
+
+
+
 // Determines which configs the user wants loaded depending on the command line arguments passed in
 // Returns the list of matching configurations and the remaining list of command line arguments)
 func MatchConfigs(args []string) (matchingConfigs []Config, remainingArgs []string) {
-        var clusterIds string
-        var acceptAllClusters bool
-        var configDir string
         var pred func(Config) bool
 
         //
         //  Parse command line arguments
         //
-
-        flagSet := flag.NewFlagSet("Config Loader", flag.ContinueOnError)
-        flagSet.SetOutput(ioutil.Discard)
-        flagSet.StringVar(&configDir, "config-dir", "./", `The root directory to look for config files in. Defaults to "./"`)
-        flagSet.StringVar(&clusterIds, "id", "", "The cluster id to apply the command on")
-        flagSet.BoolVar(&acceptAllClusters, "all", false, "Apply command to all cluster ids")
-        flagSet.Parse(args)
+        cli := &CliOptions{}
+        args, _ = flags.NewParser(cli,  flags.HelpFlag | flags.PassDoubleDash | flags.IgnoreUnknown).ParseArgs(args)
 
         //
         //  Determine which predicate to use
         //
-        if acceptAllClusters {
+        if cli.AcceptAllClusters {
                 pred = func(config Config) bool {
                         return true
                 }
         } else {
-                if len(clusterIds) == 0 {
+                if len(cli.ClusterIds) == 0 {
                         logger.Errorf("Missing cluster id(s) or all flag. See help for more infos.")
                 } else {
-                        clusters := strings.Split(clusterIds, ",")
                         pred = func(config Config) bool {
 
-                                for _, clusterId := range clusters {
+                                for _, clusterId := range cli.ClusterIds {
                                         if config.Config.Id == clusterId {
                                                 return true
                                         }
@@ -167,9 +169,9 @@ func MatchConfigs(args []string) (matchingConfigs []Config, remainingArgs []stri
         //
         configs := make([]Config,0)
         if pred != nil {
-                configs = ReadConfigs(configDir)
+                configs = ReadConfigs(cli.ConfigDir)
                 configs = filterConfigs(pred, configs)
         }
 
-        return configs, flagSet.Args()
+        return configs, args
 }

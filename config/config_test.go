@@ -37,7 +37,7 @@ func TestParseSampleConfig(t *testing.T) {
 }
 
 func TestParseMatchConfigsForAllCluster(t *testing.T) {
-        args := []string{"-all", "someCmd"}
+        args := []string{"--all", "someCmd"}
 
         configs, remainingArgs := MatchConfigs(args)
 
@@ -55,7 +55,7 @@ func TestParseMatchConfigsForAllCluster(t *testing.T) {
 }
 
 func TestParseMatchConfigsOneCluster(t *testing.T) {
-        args := []string{`-id=aws-2`}
+        args := []string{`--id=aws-2`}
 
         configs, remainingArgs := MatchConfigs(args)
 
@@ -64,7 +64,7 @@ func TestParseMatchConfigsOneCluster(t *testing.T) {
         }
 
         if len(configs) != 1 {
-                t.Error(`Expected four configs`)
+                t.Errorf("Expected one configs. But got %d", len(configs))
         }
 
         if configs[0].Config.Id != "aws-2" {
@@ -81,7 +81,7 @@ func TestParseMatchConfigsOneCluster(t *testing.T) {
 }
 
 func TestParseMatchConfigsServeralClusters(t *testing.T) {
-        args := []string{`-id=aws-2,gce-1`}
+        args := []string{`--id=aws-2`,`--id=gce-1`}
 
         configs, remainingArgs := MatchConfigs(args)
 
@@ -90,7 +90,7 @@ func TestParseMatchConfigsServeralClusters(t *testing.T) {
         }
 
         if len(configs) != 2 {
-                t.Error(`Expected two configs`)
+                t.Errorf("Expected two configs. But got %d", len(configs))
         }
 
         if !(configs[0].Config.Id == "aws-2" || configs[0].Config.Id == "gce-1") {
@@ -102,7 +102,7 @@ func TestParseMatchConfigsServeralClusters(t *testing.T) {
 }
 
 func TestParseMatchConfigsNoMatchingClusters(t *testing.T) {
-        args := []string{`-id=aws-not-found`}
+        args := []string{`--id=aws-not-found`}
 
         configs, remainingArgs := MatchConfigs(args)
 
