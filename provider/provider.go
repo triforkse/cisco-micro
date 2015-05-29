@@ -39,7 +39,7 @@ func (provider *Provider) dispatch(cfg config.Config, args []string) int {
         dispatchTable := provider.dispatchTable
 
         if (len(args) == 0){
-                fmt.Fprintf(os.Stderr, "No arguments given.\n")
+                fmt.Fprintf(os.Stderr, "No command specified. See help for details.\n")
                 return 1
         }
 
