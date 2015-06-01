@@ -10,7 +10,8 @@ import (
 const defaultLocation string = ".micro/src"
 
 func main() {
-        configs, args := config.MatchConfigs(os.Args[1:])
+
+        configs, args := config.MatchConfigs(os.Args[2:])
 
         if len(configs) == 0 {
                 logger.Errorf("No matching configurations found.")
@@ -20,3 +21,4 @@ func main() {
                 provider.Dispatch(cfg, args)
         }
 }
+

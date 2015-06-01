@@ -1,5 +1,5 @@
 package main
-
+//
 //import (
 //	"bytes"
 //	"cisco/micro/logger"
@@ -14,10 +14,10 @@ package main
 //	"log"
 //	"os"
 //)
-
-const defaultRepo string = "https://github.com/triforkse/microservices-infrastructure.git"
-const repoBranch string = "feature/terraform"
-
+//
+//const defaultRepo string = "https://github.com/triforkse/microservices-infrastructure.git"
+//const repoBranch string = "feature/terraform"
+//
 //func initCmd(providerId string, filePath string, defaultLocation string) error {
 //
 //	// Download the Infrastructure files
@@ -80,7 +80,7 @@ const repoBranch string = "feature/terraform"
 //
 //	return nil
 //}
-
+//
 //func clonePackerConfigProject(gitRepo string, defaultLocation string) {
 //	cmd := executil.Command("git", "clone", "-b", repoBranch, "--single-branch", "--depth=1", gitRepo, defaultLocation)
 //	err := cmd.Run()

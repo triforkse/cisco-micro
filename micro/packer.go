@@ -1,11 +1,11 @@
 package main
 
-//import (
+import (
 //	"cisco/micro/logger"
 //	"cisco/micro/provider"
 //	"cisco/micro/util/executil"
 //	"os"
-//)
+)
 
 //func packerCmd(config provider.Provider) error {
 //
