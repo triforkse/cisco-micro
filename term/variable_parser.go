@@ -29,7 +29,7 @@ func (self *varmap) String() string {
         return "TODO varmap"
 }
 
-func parseCmdLineVariables2(args []string) (varmap, []string) {
+func parseCmdLineVariables(args []string) (varmap, []string) {
         var myvars varmap = varmap{}
         flagSet := flag.NewFlagSet("Command line variables", flag.ContinueOnError)
         flagSet.Var(&myvars, "var", "Specify a variable")
@@ -44,7 +44,7 @@ func parseCmdLineVariables2(args []string) (varmap, []string) {
 // VariableParser
 //
 type VariableParser struct {
-        AskFunction func(string) (string, error)
+        AskFunction func(string) string
         WriteToFile func(string, []byte) error
 }
 
@@ -57,7 +57,7 @@ func (self *VariableParser) GatherVariablesFromFile(requiredVars []string, fileP
 }
 
 func (self *VariableParser) GatherVariablesFromCommandLineArgs(requiredVars []string, commandLineArgs []string) (varmap, []string) {
-        suppliedVars, remaining := parseCmdLineVariables2(commandLineArgs)
+        suppliedVars, remaining := parseCmdLineVariables(commandLineArgs)
         return self.complementWithRequiredVariables(suppliedVars, requiredVars), remaining
 }
 
@@ -90,11 +90,7 @@ func (self *VariableParser) extractValue(suppliedVars map[string]string, require
 }
 
 func (self *VariableParser) askUserToComplementVar(requiredVar string) string {
-        answer, err := self.AskFunction(fmt.Sprintf("You must supply a value for variable '%s'", requiredVar))
-        if err != nil || len(answer) == 0 {
-                return self.askUserToComplementVar(requiredVar)
-        }
-        return answer
+        return self.AskFunction(fmt.Sprintf("You must supply a value for variable '%s'", requiredVar))
 }
 
 func splitToKeyValue(kv string, splitter string) (string, string) {

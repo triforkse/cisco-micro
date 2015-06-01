@@ -13,7 +13,7 @@ import (
 
 var requiredVars []string = []string{"deployment_id", "region", "secret_key", "access_key"}
 
-func AwsBuild(cfg config.Config, args []string) int{
+func AwsBuild(cfg []config.Config, args []string) int{
         fmt.Println("AWS build")
         return 0
 }
@@ -34,19 +34,20 @@ func findVar(varname string, vars map[string]string) string {
 }
 
 func createAskForInputValueAndLookInConfigClosureFactory(vars map[string]string) (func(string) string) {
-        return func(v string) {
+        return func(v string) string {
                 return findVar(v, vars)
         }
 }
 
-func AwsApply(cfg config.Config, args []string) int {
+func AwsApply(cfg []config.Config, args []string) int {
 
+        fmt.Printf("Apply")
 
         parsedConfig := map[string]string{} // TODO parse it
 
         variableProvider := term.VariableParser{AskFunction: createAskForInputValueAndLookInConfigClosureFactory(parsedConfig), WriteToFile: json.WriteToFile}
         gatheredVars, remainingArgs := variableProvider.GatherVariablesFromCommandLineArgs(requiredVars, args)
-        variableProvider.WriteVariablesToFile(gatheredVars, cfg.Path)
+        variableProvider.WriteVariablesToFile(gatheredVars, cfg[0].Path)
 
         //Todo cmd flags
         flags := map[string]string{}
@@ -60,7 +61,7 @@ func AwsApply(cfg config.Config, args []string) int {
 
 
         cmdCtx := terraform.CommandContext{"apply", gatheredVars, flags}
-        terraformCtx := terraform.TerraformContext{cmdCtx, cfg}
+        terraformCtx := terraform.TerraformContext{cmdCtx, cfg[0]}
 
         commandList := terraformCtx.ToList()
 

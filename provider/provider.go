@@ -26,6 +26,7 @@ var providers = map[string]*Provider{
 
 func Dispatch(cfgs []config.Config, args[]string) int {
         if provider, ok := providers[cfgs[0].Config.Provider]; ok {
+                fmt.Printf("dispatching to provider %s with args %v", cfgs[0].Config.Provider, args)
                 return provider.dispatch(cfgs, args)
         } else {
                 fmt.Fprintf(os.Stderr, "Unsupported provider: \"%s\" found in \"%s\"\n", cfgs[0].Config.Provider, cfgs[0].Path)

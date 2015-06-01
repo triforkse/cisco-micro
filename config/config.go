@@ -182,7 +182,6 @@ func MatchConfigs(args []string) (matchingConfigs map[string][]Config, remaining
                         }
 
                         configs[config.Config.Provider] = append(clusters, config)
-
                 }
         }
 
