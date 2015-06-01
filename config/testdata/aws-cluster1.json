@@ -1,6 +1,4 @@
 {
-  "access_key": "kfjhsdkf",
-  "deployment_id": "fjkhsdfikj",
-  "region": "hfksdfsd",
-  "secret_key": "hkfjdshfks"
+        "id": "aws-1",
+        "provider": "aws"
 }
